@@ -16,6 +16,11 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        //return fake products with name and description
+        return [
+            'name' => $this->faker->unique()->word(),
+            'description' => $this->faker->sentence(),
+        ];
         return [
             //
         ];
