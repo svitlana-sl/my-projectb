@@ -1,0 +1,511 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Pet Care Platform API",
+        "description": "API documentation for Pet Care Platform",
+        "contact": {
+            "email": "your@email.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/service-types": {
+            "get": {
+                "tags": [
+                    "Service Types"
+                ],
+                "summary": "Get all service types",
+                "operationId": "321658b5a7e80f5cca9e2011bfbfc318",
+                "responses": {
+                    "200": {
+                        "description": "List of service types",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Service Types"
+                ],
+                "summary": "Create a new service type",
+                "operationId": "619a872ec958059458ba8347a26809f7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Dog Walking"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Professional dog walking services"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Service type created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/service-types/{id}": {
+            "get": {
+                "tags": [
+                    "Service Types"
+                ],
+                "summary": "Get a specific service type",
+                "operationId": "34037d0d53b78ec040db3841ff44e929",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service type details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Service type not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Service Types"
+                ],
+                "summary": "Update a service type",
+                "operationId": "421a0caaf85f895edb68b8b4d6945b89",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Dog Walking"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Professional dog walking services"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Service type updated successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Service type not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Service Types"
+                ],
+                "summary": "Delete a service type",
+                "operationId": "255c52515cf5b4a3bf8e31a079aca0b7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service type ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Service type deleted successfully"
+                    },
+                    "404": {
+                        "description": "Service type not found"
+                    }
+                }
+            }
+        },
+        "/api/sitter-services": {
+            "get": {
+                "tags": [
+                    "Sitter Services"
+                ],
+                "summary": "Get all sitter services",
+                "operationId": "d569ed825f29b01de63086355b970d24",
+                "parameters": [
+                    {
+                        "name": "service_type_id",
+                        "in": "query",
+                        "description": "Filter by service type ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of sitter services",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "hourly_rate": {
+                                                "type": "number",
+                                                "format": "float"
+                                            },
+                                            "service_type_id": {
+                                                "type": "integer"
+                                            },
+                                            "sitter_id": {
+                                                "type": "integer"
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "service_type": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sitter Services"
+                ],
+                "summary": "Create a new sitter service",
+                "operationId": "d5eb8601dfee00d018433abe35eb47ea",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "hourly_rate",
+                                    "service_type_id"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Dog Walking Service"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Professional dog walking services"
+                                    },
+                                    "hourly_rate": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 25
+                                    },
+                                    "service_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "sitter_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Sitter service created successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/sitter-services/{id}": {
+            "get": {
+                "tags": [
+                    "Sitter Services"
+                ],
+                "summary": "Get a specific sitter service",
+                "operationId": "e069b2e1db039df34a81837da028a1eb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sitter service ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sitter service details"
+                    },
+                    "404": {
+                        "description": "Sitter service not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sitter Services"
+                ],
+                "summary": "Update a sitter service",
+                "operationId": "441d3554aec7019144d5e66bbbd56c3d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sitter service ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "hourly_rate",
+                                    "service_type_id"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Dog Walking Service"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Professional dog walking services"
+                                    },
+                                    "hourly_rate": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 25
+                                    },
+                                    "service_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "sitter_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sitter service updated successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Sitter service not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sitter Services"
+                ],
+                "summary": "Delete a sitter service",
+                "operationId": "adf288631c77ad3c2e480b7ed4810f95",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sitter service ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Sitter service deleted successfully"
+                    },
+                    "404": {
+                        "description": "Sitter service not found"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Service Types",
+            "description": "API Endpoints for managing service types"
+        },
+        {
+            "name": "Sitter Services",
+            "description": "API Endpoints for managing sitter services"
+        }
+    ]
+}

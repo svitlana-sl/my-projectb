@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\SitterServiceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,3 +17,6 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::resource('service-types', ServiceTypeController::class);
+Route::resource('sitter-services', SitterServiceController::class);
