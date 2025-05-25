@@ -10,13 +10,8 @@ class Favorite extends Model
 {
     use HasFactory;
 
-    // Disable auto-incrementing since we use composite primary key
-    public $incrementing = false;
-    
-    // Disable updated_at since we only have created_at
-    public $timestamps = false;
-    
-    protected $primaryKey = ['owner_id', 'sitter_id'];
+    // Only use created_at, not updated_at
+    const UPDATED_AT = null;
 
     protected $fillable = [
         'owner_id',
