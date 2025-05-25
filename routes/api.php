@@ -20,5 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('service-types', ServiceTypeController::class);
-Route::apiResource('sitter-services', SitterServiceController::class);
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::apiResource('service-types', ServiceTypeController::class);
+    Route::apiResource('sitter-services', SitterServiceController::class);
+});
