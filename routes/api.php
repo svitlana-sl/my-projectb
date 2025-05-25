@@ -47,12 +47,12 @@ Route::group(['prefix' => 'public'], function () {
     Route::get('sitters/{sitter_id}/average-rating', [RatingController::class, 'getSitterAverageRating']);
 });
 
-// Authenticated routes
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+// Authenticated routes - using session authentication for SPA
+Route::middleware(['web', 'auth'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['web', 'auth']], function () {
     // Service Types - full CRUD (only authenticated users can create/update/delete)
     Route::post('service-types', [ServiceTypeController::class, 'store']);
     Route::put('service-types/{id}', [ServiceTypeController::class, 'update']);

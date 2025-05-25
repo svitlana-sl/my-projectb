@@ -73,7 +73,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Get list of users",
      *     description="Returns list of users with optional filtering by role",
-     *     security={{"bearerAuth":{}}},
+     *     security={{"sanctum":{}}},
      *     @OA\Parameter(
      *         name="role",
      *         in="query",
