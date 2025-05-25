@@ -638,13 +638,13 @@
                 }
             }
         },
-        "/api/ratings": {
+        "/api/public/ratings": {
             "get": {
                 "tags": [
-                    "Ratings"
+                    "Public"
                 ],
-                "summary": "Get list of ratings",
-                "description": "Returns list of ratings with optional filtering",
+                "summary": "Get list of ratings (public)",
+                "description": "Returns list of ratings with optional filtering - no authentication required",
                 "operationId": "getRatingsList",
                 "parameters": [
                     {
@@ -705,7 +705,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/ratings": {
             "post": {
                 "tags": [
                     "Ratings"
@@ -906,13 +908,13 @@
                 }
             }
         },
-        "/api/sitters/{sitter_id}/average-rating": {
+        "/api/public/sitters/{sitter_id}/average-rating": {
             "get": {
                 "tags": [
-                    "Ratings"
+                    "Public"
                 ],
-                "summary": "Get sitter's average rating",
-                "description": "Returns average rating for a specific sitter",
+                "summary": "Get sitter's average rating (public)",
+                "description": "Returns average rating for a specific sitter - no authentication required",
                 "operationId": "getSitterAverageRating",
                 "parameters": [
                     {
@@ -1584,13 +1586,13 @@
                 }
             }
         },
-        "/api/sitter-profiles": {
+        "/api/public/sitter-profiles": {
             "get": {
                 "tags": [
-                    "Sitter Profiles"
+                    "Public"
                 ],
-                "summary": "Get list of sitter profiles",
-                "description": "Returns list of sitter profiles with optional filtering",
+                "summary": "Get list of sitter profiles (public)",
+                "description": "Returns list of sitter profiles with optional filtering - no authentication required",
                 "operationId": "getSitterProfilesList",
                 "parameters": [
                     {
@@ -1651,7 +1653,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/sitter-profiles": {
             "post": {
                 "tags": [
                     "Sitter Profiles"
@@ -1699,13 +1703,13 @@
                 }
             }
         },
-        "/api/sitter-profiles/{id}": {
+        "/api/public/sitter-profiles/{id}": {
             "get": {
                 "tags": [
-                    "Sitter Profiles"
+                    "Public"
                 ],
-                "summary": "Get sitter profile information",
-                "description": "Returns sitter profile data",
+                "summary": "Get sitter profile information (public)",
+                "description": "Returns sitter profile data - no authentication required",
                 "operationId": "getSitterProfileById",
                 "parameters": [
                     {
@@ -1746,7 +1750,9 @@
                         "description": "Sitter profile not found"
                     }
                 }
-            },
+            }
+        },
+        "/api/sitter-profiles/{id}": {
             "put": {
                 "tags": [
                     "Sitter Profiles"
@@ -1852,13 +1858,13 @@
                 }
             }
         },
-        "/api/users/{user_id}/sitter-profile": {
+        "/api/public/users/{user_id}/sitter-profile": {
             "get": {
                 "tags": [
-                    "Sitter Profiles"
+                    "Public"
                 ],
-                "summary": "Get sitter profile by user ID",
-                "description": "Returns sitter profile for a specific user",
+                "summary": "Get sitter profile by user ID (public)",
+                "description": "Returns sitter profile for a specific user - no authentication required",
                 "operationId": "getSitterProfileByUserId",
                 "parameters": [
                     {
@@ -1901,13 +1907,13 @@
                 }
             }
         },
-        "/api/sitter-profiles/search": {
+        "/api/public/sitter-profiles/search": {
             "get": {
                 "tags": [
-                    "Sitter Profiles"
+                    "Public"
                 ],
-                "summary": "Search sitter profiles by location",
-                "description": "Search for sitter profiles within a certain radius of given coordinates",
+                "summary": "Search sitter profiles by location (public)",
+                "description": "Search for sitter profiles within a certain radius of given coordinates - no authentication required",
                 "operationId": "searchSitterProfiles",
                 "parameters": [
                     {
@@ -1975,13 +1981,14 @@
                 }
             }
         },
-        "/api/sitter-services": {
+        "/api/public/sitter-services": {
             "get": {
                 "tags": [
-                    "Sitter Services"
+                    "Public"
                 ],
-                "summary": "Get all sitter services",
-                "operationId": "d569ed825f29b01de63086355b970d24",
+                "summary": "Get all sitter services (public)",
+                "description": "Get all sitter services - no authentication required",
+                "operationId": "773ef7be9bda80a5eefc554dc4c77ec3",
                 "parameters": [
                     {
                         "name": "service_type_id",
@@ -2048,7 +2055,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/sitter-services": {
             "post": {
                 "tags": [
                     "Sitter Services"
@@ -2103,13 +2112,14 @@
                 }
             }
         },
-        "/api/sitter-services/{id}": {
+        "/api/public/sitter-services/{id}": {
             "get": {
                 "tags": [
-                    "Sitter Services"
+                    "Public"
                 ],
-                "summary": "Get a specific sitter service",
-                "operationId": "e069b2e1db039df34a81837da028a1eb",
+                "summary": "Get a specific sitter service (public)",
+                "description": "Get specific sitter service details - no authentication required",
+                "operationId": "1fd73c9e9ef2ac9d9c6ab9376ce6f5fa",
                 "parameters": [
                     {
                         "name": "id",
@@ -2129,7 +2139,9 @@
                         "description": "Sitter service not found"
                     }
                 }
-            },
+            }
+        },
+        "/api/sitter-services/{id}": {
             "put": {
                 "tags": [
                     "Sitter Services"
@@ -3237,16 +3249,16 @@
             "description": "Pets"
         },
         {
+            "name": "Public",
+            "description": "Public"
+        },
+        {
             "name": "Ratings",
             "description": "Ratings"
         },
         {
             "name": "Service Requests",
             "description": "Service Requests"
-        },
-        {
-            "name": "Public",
-            "description": "Public"
         },
         {
             "name": "Sitter Profiles",

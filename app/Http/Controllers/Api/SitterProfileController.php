@@ -12,11 +12,11 @@ class SitterProfileController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/sitter-profiles",
+     *     path="/api/public/sitter-profiles",
      *     operationId="getSitterProfilesList",
-     *     tags={"Sitter Profiles"},
-     *     summary="Get list of sitter profiles",
-     *     description="Returns list of sitter profiles with optional filtering",
+     *     tags={"Public"},
+     *     summary="Get list of sitter profiles (public)",
+     *     description="Returns list of sitter profiles with optional filtering - no authentication required",
      *     @OA\Parameter(
      *         name="user_id",
      *         in="query",
@@ -128,11 +128,11 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/sitter-profiles/{id}",
+     *     path="/api/public/sitter-profiles/{id}",
      *     operationId="getSitterProfileById",
-     *     tags={"Sitter Profiles"},
-     *     summary="Get sitter profile information",
-     *     description="Returns sitter profile data",
+     *     tags={"Public"},
+     *     summary="Get sitter profile information (public)",
+     *     description="Returns sitter profile data - no authentication required",
      *     @OA\Parameter(
      *         name="id",
      *         description="Sitter profile id",
@@ -271,11 +271,11 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/users/{user_id}/sitter-profile",
+     *     path="/api/public/users/{user_id}/sitter-profile",
      *     operationId="getSitterProfileByUserId",
-     *     tags={"Sitter Profiles"},
-     *     summary="Get sitter profile by user ID",
-     *     description="Returns sitter profile for a specific user",
+     *     tags={"Public"},
+     *     summary="Get sitter profile by user ID (public)",
+     *     description="Returns sitter profile for a specific user - no authentication required",
      *     @OA\Parameter(
      *         name="user_id",
      *         description="User ID",
@@ -321,11 +321,11 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/sitter-profiles/search",
+     *     path="/api/public/sitter-profiles/search",
      *     operationId="searchSitterProfiles",
-     *     tags={"Sitter Profiles"},
-     *     summary="Search sitter profiles by location",
-     *     description="Search for sitter profiles within a certain radius of given coordinates",
+     *     tags={"Public"},
+     *     summary="Search sitter profiles by location (public)",
+     *     description="Search for sitter profiles within a certain radius of given coordinates - no authentication required",
      *     @OA\Parameter(
      *         name="latitude",
      *         in="query",

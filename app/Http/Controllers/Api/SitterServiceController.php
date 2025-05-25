@@ -16,9 +16,10 @@ class SitterServiceController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/sitter-services",
-     *     summary="Get all sitter services",
-     *     tags={"Sitter Services"},
+     *     path="/api/public/sitter-services",
+     *     summary="Get all sitter services (public)",
+     *     tags={"Public"},
+     *     description="Get all sitter services - no authentication required",
      *     @OA\Parameter(
      *         name="service_type_id",
      *         in="query",
@@ -105,9 +106,10 @@ class SitterServiceController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/sitter-services/{id}",
-     *     summary="Get a specific sitter service",
-     *     tags={"Sitter Services"},
+     *     path="/api/public/sitter-services/{id}",
+     *     summary="Get a specific sitter service (public)",
+     *     tags={"Public"},
+     *     description="Get specific sitter service details - no authentication required",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

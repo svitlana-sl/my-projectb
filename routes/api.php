@@ -74,9 +74,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('service-requests/{id}/accept', [ServiceRequestController::class, 'accept']);
     Route::put('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
     
-    // Ratings
-    Route::apiResource('ratings', RatingController::class);
-    Route::get('sitters/{sitter_id}/average-rating', [RatingController::class, 'getSitterAverageRating']);
+    // Ratings - only authenticated operations
+    Route::post('ratings', [RatingController::class, 'store']);
+    Route::put('ratings/{id}', [RatingController::class, 'update']);
+    Route::delete('ratings/{id}', [RatingController::class, 'destroy']);
     
     // Favorites
     Route::apiResource('favorites', FavoriteController::class);
@@ -84,8 +85,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('owners/{owner_id}/favorites', [FavoriteController::class, 'getOwnerFavorites']);
     Route::get('favorites/check', [FavoriteController::class, 'checkFavoriteStatus']);
     
-    // Sitter Profiles
-    Route::apiResource('sitter-profiles', SitterProfileController::class);
-    Route::get('users/{user_id}/sitter-profile', [SitterProfileController::class, 'getByUserId']);
-    Route::get('sitter-profiles/search', [SitterProfileController::class, 'searchByLocation']);
+    // Sitter Profiles - only authenticated operations
+    Route::post('sitter-profiles', [SitterProfileController::class, 'store']);
+    Route::put('sitter-profiles/{id}', [SitterProfileController::class, 'update']);
+    Route::delete('sitter-profiles/{id}', [SitterProfileController::class, 'destroy']);
 });

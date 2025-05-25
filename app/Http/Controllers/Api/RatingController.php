@@ -12,11 +12,11 @@ class RatingController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/ratings",
+     *     path="/api/public/ratings",
      *     operationId="getRatingsList",
-     *     tags={"Ratings"},
-     *     summary="Get list of ratings",
-     *     description="Returns list of ratings with optional filtering",
+     *     tags={"Public"},
+     *     summary="Get list of ratings (public)",
+     *     description="Returns list of ratings with optional filtering - no authentication required",
      *     @OA\Parameter(
      *         name="owner_id",
      *         in="query",
@@ -283,11 +283,11 @@ class RatingController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/sitters/{sitter_id}/average-rating",
+     *     path="/api/public/sitters/{sitter_id}/average-rating",
      *     operationId="getSitterAverageRating",
-     *     tags={"Ratings"},
-     *     summary="Get sitter's average rating",
-     *     description="Returns average rating for a specific sitter",
+     *     tags={"Public"},
+     *     summary="Get sitter's average rating (public)",
+     *     description="Returns average rating for a specific sitter - no authentication required",
      *     @OA\Parameter(
      *         name="sitter_id",
      *         description="Sitter ID",
