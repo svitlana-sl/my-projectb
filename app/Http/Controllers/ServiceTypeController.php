@@ -5,16 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ServiceType;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Info(
- *     version="1.0.0",
- *     title="Pet Care Platform API",
- *     description="API documentation for Pet Care Platform",
- *     @OA\Contact(
- *         email="your@email.com"
- *     )
- * )
- */
+
 
 class ServiceTypeController extends Controller
 {
