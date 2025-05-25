@@ -12,11 +12,68 @@ class UserController extends BaseController
 {
     /**
      * @OA\Get(
+     *     path="/api/public/sitters",
+     *     operationId="getSittersList",
+     *     tags={"Public"},
+     *     summary="Get list of sitters (public)",
+     *     description="Returns list of sitters with optional filtering - no authentication required",
+     *     @OA\Parameter(
+     *         name="city",
+     *         in="query",
+     *         description="Filter by city",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_type",
+     *         in="query",
+     *         description="Filter by service type",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Sitters retrieved successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/User")
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getSitters(Request $request): JsonResponse
+    {
+        $query = User::whereIn('role', ['sitter', 'both']);
+
+        if ($request->has('city')) {
+            $query->where('city', 'like', '%' . $request->city . '%');
+        }
+
+        // Add service type filtering if needed
+        if ($request->has('service_type')) {
+            $query->whereHas('sitterServices.serviceType', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->service_type . '%');
+            });
+        }
+
+        $sitters = $query->get();
+
+        return $this->sendResponse($sitters, 'Sitters retrieved successfully');
+    }
+
+    /**
+     * @OA\Get(
      *     path="/api/users",
      *     operationId="getUsersList",
      *     tags={"Users"},
      *     summary="Get list of users",
      *     description="Returns list of users with optional filtering by role",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="role",
      *         in="query",

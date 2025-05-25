@@ -16,9 +16,10 @@ class ServiceTypeController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/service-types",
-     *     summary="Get all service types",
-     *     tags={"Service Types"},
+     *     path="/api/public/service-types",
+     *     summary="Get all service types (public)",
+     *     tags={"Public"},
+     *     description="Get all service types - no authentication required",
      *     @OA\Response(
      *         response=200,
      *         description="List of service types",
@@ -85,9 +86,10 @@ class ServiceTypeController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/service-types/{id}",
-     *     summary="Get a specific service type",
-     *     tags={"Service Types"},
+     *     path="/api/public/service-types/{id}",
+     *     summary="Get a specific service type (public)",
+     *     tags={"Public"},
+     *     description="Get specific service type details - no authentication required",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

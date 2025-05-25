@@ -8,12 +8,6 @@
         },
         "version": "1.0.0"
     },
-    "servers": [
-        {
-            "url": "https://orca-app-63wd2.ondigitalocean.app/api",
-            "description": "API Server"
-        }
-    ],
     "paths": {
         "/api/favorites": {
             "get": {
@@ -1345,13 +1339,14 @@
                 }
             }
         },
-        "/api/service-types": {
+        "/api/public/service-types": {
             "get": {
                 "tags": [
-                    "Service Types"
+                    "Public"
                 ],
-                "summary": "Get all service types",
-                "operationId": "321658b5a7e80f5cca9e2011bfbfc318",
+                "summary": "Get all service types (public)",
+                "description": "Get all service types - no authentication required",
+                "operationId": "e16a3ad3a36f0af963016cf15b5b0ac4",
                 "responses": {
                     "200": {
                         "description": "List of service types",
@@ -1386,7 +1381,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/service-types": {
             "post": {
                 "tags": [
                     "Service Types"
@@ -1452,13 +1449,14 @@
                 }
             }
         },
-        "/api/service-types/{id}": {
+        "/api/public/service-types/{id}": {
             "get": {
                 "tags": [
-                    "Service Types"
+                    "Public"
                 ],
-                "summary": "Get a specific service type",
-                "operationId": "34037d0d53b78ec040db3841ff44e929",
+                "summary": "Get a specific service type (public)",
+                "description": "Get specific service type details - no authentication required",
+                "operationId": "a091e17e826d2151b664e073a8d982a5",
                 "parameters": [
                     {
                         "name": "id",
@@ -1504,7 +1502,9 @@
                         "description": "Service type not found"
                     }
                 }
-            },
+            }
+        },
+        "/api/service-types/{id}": {
             "put": {
                 "tags": [
                     "Service Types"
@@ -2224,6 +2224,64 @@
                 }
             }
         },
+        "/api/public/sitters": {
+            "get": {
+                "tags": [
+                    "Public"
+                ],
+                "summary": "Get list of sitters (public)",
+                "description": "Returns list of sitters with optional filtering - no authentication required",
+                "operationId": "getSittersList",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Filter by city",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "service_type",
+                        "in": "query",
+                        "description": "Filter by service type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sitters retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "tags": [
@@ -2285,7 +2343,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -3152,7 +3215,8 @@
                 "type": "http",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
-            }
+            },
+            "0": []
         }
     },
     "tags": [
@@ -3179,6 +3243,10 @@
         {
             "name": "Service Requests",
             "description": "Service Requests"
+        },
+        {
+            "name": "Public",
+            "description": "Public"
         },
         {
             "name": "Sitter Profiles",
