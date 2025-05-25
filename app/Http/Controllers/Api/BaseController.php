@@ -16,8 +16,8 @@ use Illuminate\Http\JsonResponse;
  * )
  * 
  * @OA\Server(
- *     url="http://my-project.ddev.site:33003/api",
- *     description="Local development server"
+ *     url=L5_SWAGGER_CONST_HOST,
+ *     description="API Server"
  * )
  * 
  * @OA\SecurityScheme(

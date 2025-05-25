@@ -10,8 +10,8 @@
     },
     "servers": [
         {
-            "url": "http://my-project.ddev.site:33003/api",
-            "description": "Local development server"
+            "url": "https://orca-app-63wd2.ondigitalocean.app/api",
+            "description": "API Server"
         }
     ],
     "paths": {
