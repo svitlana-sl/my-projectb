@@ -83,4 +83,76 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->is_admin;
     }
+
+    /**
+     * Get the pets owned by the user.
+     */
+    public function pets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Pet::class, 'owner_id');
+    }
+
+    /**
+     * Get the sitter profile for the user.
+     */
+    public function sitterProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SitterProfile::class);
+    }
+
+    /**
+     * Get the sitter services offered by the user.
+     */
+    public function sitterServices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SitterService::class, 'sitter_id');
+    }
+
+    /**
+     * Get the favorites where this user is the owner.
+     */
+    public function favoritesSitters(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Favorite::class, 'owner_id');
+    }
+
+    /**
+     * Get the favorites where this user is the sitter.
+     */
+    public function favoritedBy(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Favorite::class, 'sitter_id');
+    }
+
+    /**
+     * Get the ratings given by this user.
+     */
+    public function ratingsGiven(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Rating::class, 'owner_id');
+    }
+
+    /**
+     * Get the ratings received by this user.
+     */
+    public function ratingsReceived(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Rating::class, 'sitter_id');
+    }
+
+    /**
+     * Get the service requests made by this user.
+     */
+    public function serviceRequestsMade(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'owner_id');
+    }
+
+    /**
+     * Get the service requests received by this user.
+     */
+    public function serviceRequestsReceived(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'sitter_id');
+    }
 }
