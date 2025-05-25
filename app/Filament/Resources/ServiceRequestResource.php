@@ -31,7 +31,11 @@ class ServiceRequestResource extends Resource
                     ->label('Owner')
                     ->options(User::where('role', 'owner')->orWhere('role', 'both')->pluck('name', 'id'))
                     ->required()
-                    ->searchable(),
+                    ->searchable()
+                    ->reactive()
+                    ->afterStateUpdated(function (callable $set) {
+                        $set('pet_id', null); // Reset pet when owner changes
+                    }),
                     
                 Forms\Components\Select::make('sitter_id')
                     ->label('Sitter')
@@ -41,9 +45,20 @@ class ServiceRequestResource extends Resource
                     
                 Forms\Components\Select::make('pet_id')
                     ->label('Pet')
-                    ->options(Pet::with('owner')->get()->pluck('name', 'id'))
+                    ->options(function (callable $get) {
+                        $ownerId = $get('owner_id');
+                        if (!$ownerId) {
+                            return [];
+                        }
+                        
+                        return Pet::where('owner_id', $ownerId)
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    })
                     ->required()
-                    ->searchable(),
+                    ->searchable()
+                    ->disabled(fn (callable $get) => !$get('owner_id'))
+                    ->helperText('Select an owner first to see their pets'),
                     
                 Forms\Components\DateTimePicker::make('date_from')
                     ->required(),
