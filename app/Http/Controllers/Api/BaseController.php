@@ -20,7 +20,7 @@ use Illuminate\Http\JsonResponse;
  *     securityScheme="bearerAuth",
  *     type="http",
  *     scheme="bearer",
- *     bearerFormat="JWT"
+ *     description="Enter your bearer token in the format: Bearer {token}"
  * )
  */
 class BaseController extends Controller

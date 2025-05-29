@@ -217,8 +217,7 @@ return [
                 'bearerAuth' => [
                     'type' => 'http',
                     'scheme' => 'bearer',
-                    'bearerFormat' => 'JWT',
-                    'description' => 'Enter your bearer token'
+                    'description' => 'Enter your bearer token in the format: Bearer {token}'
                 ],
             ],
             'security' => [

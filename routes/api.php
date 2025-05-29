@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ServiceRequestController;
 use App\Http\Controllers\Api\RatingController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\SitterProfileController;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,18 @@ use App\Http\Controllers\Api\SitterProfileController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Authentication routes (no middleware needed)
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    
+    // Protected auth routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('user', [AuthController::class, 'user']);
+    });
+});
 
 // Public routes (no authentication required)
 Route::group(['prefix' => 'public'], function () {
@@ -47,12 +60,8 @@ Route::group(['prefix' => 'public'], function () {
     Route::get('sitters/{sitter_id}/average-rating', [RatingController::class, 'getSitterAverageRating']);
 });
 
-// Authenticated routes - using session authentication for SPA
-Route::middleware(['web', 'auth'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::group(['middleware' => ['web', 'auth']], function () {
+// Authenticated routes - using Sanctum tokens
+Route::group(['middleware' => ['auth:sanctum']], function () {
     // Service Types - full CRUD (only authenticated users can create/update/delete)
     Route::post('service-types', [ServiceTypeController::class, 'store']);
     Route::put('service-types/{id}', [ServiceTypeController::class, 'update']);

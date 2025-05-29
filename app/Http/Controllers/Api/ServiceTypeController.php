@@ -47,6 +47,7 @@ class ServiceTypeController extends Controller
      *     path="/api/service-types",
      *     summary="Create a new service type",
      *     tags={"Service Types"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -125,6 +126,7 @@ class ServiceTypeController extends Controller
      *     path="/api/service-types/{id}",
      *     summary="Update a service type",
      *     tags={"Service Types"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -170,6 +172,7 @@ class ServiceTypeController extends Controller
      *     path="/api/service-types/{id}",
      *     summary="Delete a service type",
      *     tags={"Service Types"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
