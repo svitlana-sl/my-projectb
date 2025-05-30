@@ -17,6 +17,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Get list of favorites",
      *     description="Returns list of favorites with optional filtering",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="owner_id",
      *         in="query",
@@ -33,7 +34,7 @@ class FavoriteController extends BaseController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Favorites retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Favorites retrieved successfully"),
@@ -42,6 +43,22 @@ class FavoriteController extends BaseController
      *                 type="array",
      *                 @OA\Items(ref="#/components/schemas/Favorite")
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
      *         )
      *     )
      * )
@@ -70,6 +87,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Add sitter to favorites",
      *     description="Add a sitter to owner's favorites list",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/FavoriteRequest")
@@ -84,8 +102,53 @@ class FavoriteController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User role restrictions",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="User must have owner or both role to add favorites")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - Sitter already in favorites",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Sitter is already in favorites")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="sitter_id",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The sitter id and owner id must be different.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -134,6 +197,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Get favorite information",
      *     description="Returns favorite data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Favorite id",
@@ -174,6 +238,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Remove favorite",
      *     description="Remove a sitter from favorites",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Favorite id",
@@ -215,6 +280,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Remove favorite by owner and sitter IDs",
      *     description="Remove a sitter from favorites using owner_id and sitter_id",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -267,6 +333,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Get owner's favorite sitters",
      *     description="Returns list of favorite sitters for a specific owner",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="owner_id",
      *         description="Owner ID",
@@ -320,6 +387,7 @@ class FavoriteController extends BaseController
      *     tags={"Favorites"},
      *     summary="Check if sitter is in owner's favorites",
      *     description="Check if a specific sitter is in owner's favorites list",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="owner_id",
      *         in="query",

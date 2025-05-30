@@ -35,46 +35,53 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
-// Public routes (no authentication required)
-Route::group(['prefix' => 'public'], function () {
-    // Public Service Types - anyone can view
-    Route::get('service-types', [ServiceTypeController::class, 'index']);
-    Route::get('service-types/{id}', [ServiceTypeController::class, 'show']);
-    
-    // Public Sitter Services - anyone can view and search
-    Route::get('sitter-services', [SitterServiceController::class, 'index']);
-    Route::get('sitter-services/{id}', [SitterServiceController::class, 'show']);
-    
-    // Public Users (sitters only) - anyone can view sitters
-    Route::get('sitters', [UserController::class, 'getSitters']);
-    Route::get('sitters/{id}', [UserController::class, 'show']);
-    
-    // Public Sitter Profiles - anyone can view and search
-    Route::get('sitter-profiles', [SitterProfileController::class, 'index']);
-    Route::get('sitter-profiles/{id}', [SitterProfileController::class, 'show']);
-    Route::get('sitter-profiles/search', [SitterProfileController::class, 'searchByLocation']);
-    Route::get('users/{user_id}/sitter-profile', [SitterProfileController::class, 'getByUserId']);
-    
-    // Public Ratings - anyone can view ratings
-    Route::get('ratings', [RatingController::class, 'index']);
-    Route::get('sitters/{sitter_id}/average-rating', [RatingController::class, 'getSitterAverageRating']);
-});
-
-// Authenticated routes - using Sanctum tokens
-Route::group(['middleware' => ['auth:sanctum']], function () {
-    // Service Types - full CRUD (only authenticated users can create/update/delete)
+// Service Types routes - public read, authenticated write
+Route::get('service-types', [ServiceTypeController::class, 'index']);
+Route::get('service-types/{id}', [ServiceTypeController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('service-types', [ServiceTypeController::class, 'store']);
     Route::put('service-types/{id}', [ServiceTypeController::class, 'update']);
     Route::delete('service-types/{id}', [ServiceTypeController::class, 'destroy']);
-    
-    // Sitter Services - full CRUD (only authenticated users can create/update/delete)
+});
+
+// Sitter Services routes - public read, authenticated write
+Route::get('sitter-services', [SitterServiceController::class, 'index']);
+Route::get('sitter-services/{id}', [SitterServiceController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('sitter-services', [SitterServiceController::class, 'store']);
     Route::put('sitter-services/{id}', [SitterServiceController::class, 'update']);
     Route::delete('sitter-services/{id}', [SitterServiceController::class, 'destroy']);
-    
-    // Users - full CRUD (only authenticated users)
+});
+
+// Users routes - public sitters list, authenticated full CRUD
+Route::get('sitters', [UserController::class, 'getSitters']);
+Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
-    
+});
+
+// Sitter Profiles routes - public read and search, authenticated write
+Route::get('sitter-profiles', [SitterProfileController::class, 'index']);
+Route::get('sitter-profiles/{id}', [SitterProfileController::class, 'show']);
+Route::get('sitter-profiles/search', [SitterProfileController::class, 'searchByLocation']);
+Route::get('users/{user_id}/sitter-profile', [SitterProfileController::class, 'getByUserId']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('sitter-profiles', [SitterProfileController::class, 'store']);
+    Route::put('sitter-profiles/{id}', [SitterProfileController::class, 'update']);
+    Route::delete('sitter-profiles/{id}', [SitterProfileController::class, 'destroy']);
+});
+
+// Ratings routes - public read, authenticated write
+Route::get('ratings', [RatingController::class, 'index']);
+Route::get('ratings/{id}', [RatingController::class, 'show']);
+Route::get('sitters/{sitter_id}/average-rating', [RatingController::class, 'getSitterAverageRating']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('ratings', [RatingController::class, 'store']);
+    Route::put('ratings/{id}', [RatingController::class, 'update']);
+    Route::delete('ratings/{id}', [RatingController::class, 'destroy']);
+});
+
+// Authenticated-only routes
+Route::middleware('auth:sanctum')->group(function () {
     // Pets
     Route::apiResource('pets', PetController::class);
     
@@ -83,19 +90,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('service-requests/{id}/accept', [ServiceRequestController::class, 'accept']);
     Route::put('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
     
-    // Ratings - only authenticated operations
-    Route::post('ratings', [RatingController::class, 'store']);
-    Route::put('ratings/{id}', [RatingController::class, 'update']);
-    Route::delete('ratings/{id}', [RatingController::class, 'destroy']);
-    
     // Favorites
     Route::apiResource('favorites', FavoriteController::class);
     Route::delete('favorites/remove', [FavoriteController::class, 'removeByIds']);
     Route::get('owners/{owner_id}/favorites', [FavoriteController::class, 'getOwnerFavorites']);
     Route::get('favorites/check', [FavoriteController::class, 'checkFavoriteStatus']);
-    
-    // Sitter Profiles - only authenticated operations
-    Route::post('sitter-profiles', [SitterProfileController::class, 'store']);
-    Route::put('sitter-profiles/{id}', [SitterProfileController::class, 'update']);
-    Route::delete('sitter-profiles/{id}', [SitterProfileController::class, 'destroy']);
 });

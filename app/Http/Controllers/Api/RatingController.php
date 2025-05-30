@@ -12,9 +12,9 @@ class RatingController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/public/ratings",
+     *     path="/api/ratings",
      *     operationId="getRatingsList",
-     *     tags={"Public"},
+     *     tags={"Ratings"},
      *     summary="Get list of ratings (public)",
      *     description="Returns list of ratings with optional filtering - no authentication required",
      *     @OA\Parameter(
@@ -50,6 +50,22 @@ class RatingController extends BaseController
      *                 @OA\Items(ref="#/components/schemas/Rating")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -81,6 +97,7 @@ class RatingController extends BaseController
      *     tags={"Ratings"},
      *     summary="Create new rating",
      *     description="Create a new rating for a sitter",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/RatingRequest")
@@ -95,8 +112,32 @@ class RatingController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - Rating already exists for this owner-sitter combination"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -145,8 +186,8 @@ class RatingController extends BaseController
      *     path="/api/ratings/{id}",
      *     operationId="getRatingById",
      *     tags={"Ratings"},
-     *     summary="Get rating information",
-     *     description="Returns rating data",
+     *     summary="Get rating information (public)",
+     *     description="Returns rating data - no authentication required",
      *     @OA\Parameter(
      *         name="id",
      *         description="Rating id",
@@ -164,8 +205,16 @@ class RatingController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Rating not found"
+     *         description="Not Found - Rating not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -187,6 +236,7 @@ class RatingController extends BaseController
      *     tags={"Ratings"},
      *     summary="Update existing rating",
      *     description="Update rating data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Rating id",
@@ -208,12 +258,28 @@ class RatingController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Rating not found"
+     *         description="Not Found - Rating not found"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -247,6 +313,7 @@ class RatingController extends BaseController
      *     tags={"Ratings"},
      *     summary="Delete rating",
      *     description="Delete a rating",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Rating id",
@@ -263,8 +330,24 @@ class RatingController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Rating not found"
+     *         description="Not Found - Rating not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -283,9 +366,9 @@ class RatingController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/public/sitters/{sitter_id}/average-rating",
+     *     path="/api/sitters/{sitter_id}/average-rating",
      *     operationId="getSitterAverageRating",
-     *     tags={"Public"},
+     *     tags={"Ratings"},
      *     summary="Get sitter's average rating (public)",
      *     description="Returns average rating for a specific sitter - no authentication required",
      *     @OA\Parameter(
@@ -311,8 +394,20 @@ class RatingController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User is not a sitter"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter not found"
+     *         description="Not Found - Sitter not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

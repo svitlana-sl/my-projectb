@@ -112,8 +112,17 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "409": {
+                        "description": "Conflict - User with this email already exists"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
@@ -193,8 +202,17 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid credentials"
+                    },
                     "422": {
-                        "description": "Invalid credentials"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
@@ -223,8 +241,14 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
@@ -279,7 +303,10 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
@@ -319,7 +346,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Favorites retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -343,8 +370,53 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -387,10 +459,124 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User role restrictions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User must have owner or both role to add favorites"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Sitter already in favorites",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sitter is already in favorites"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "sitter_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The sitter id and owner id must be different."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/favorites/{id}": {
@@ -439,7 +625,12 @@
                     "404": {
                         "description": "Favorite not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -483,7 +674,12 @@
                     "404": {
                         "description": "Favorite not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/favorites/remove": {
@@ -538,7 +734,12 @@
                     "404": {
                         "description": "Favorite not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/owners/{owner_id}/favorites": {
@@ -590,7 +791,12 @@
                     "404": {
                         "description": "Owner not found"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/favorites/check": {
@@ -658,7 +864,12 @@
                     "422": {
                         "description": "Validation error"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/pets": {
@@ -691,7 +902,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Pets retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -715,8 +926,53 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -759,10 +1015,104 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User role restrictions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User must have owner or both role to create pets"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/pets/{id}": {
@@ -786,7 +1136,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Pet retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -808,10 +1158,72 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Pet not found"
+                        "description": "Pet not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pet not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "put": {
                 "tags": [
@@ -865,13 +1277,104 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Pet not found"
+                        "description": "Pet not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pet not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "weight": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The weight must be between 0.1 and 200."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -912,16 +1415,78 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Pet not found"
+                        "description": "Pet not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pet not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/ratings": {
+        "/api/ratings": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Ratings"
                 ],
                 "summary": "Get list of ratings (public)",
                 "description": "Returns list of ratings with optional filtering - no authentication required",
@@ -983,11 +1548,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/ratings": {
+            },
             "post": {
                 "tags": [
                     "Ratings"
@@ -1029,10 +1604,33 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Rating already exists for this owner-sitter combination"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/ratings/{id}": {
@@ -1040,8 +1638,8 @@
                 "tags": [
                     "Ratings"
                 ],
-                "summary": "Get rating information",
-                "description": "Returns rating data",
+                "summary": "Get rating information (public)",
+                "description": "Returns rating data - no authentication required",
                 "operationId": "getRatingById",
                 "parameters": [
                     {
@@ -1078,8 +1676,14 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
                     "404": {
-                        "description": "Rating not found"
+                        "description": "Not Found - Rating not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             },
@@ -1135,13 +1739,30 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Rating not found"
+                        "description": "Not Found - Rating not found"
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -1182,16 +1803,33 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Rating not found"
+                        "description": "Not Found - Rating not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/sitters/{sitter_id}/average-rating": {
+        "/api/sitters/{sitter_id}/average-rating": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Ratings"
                 ],
                 "summary": "Get sitter's average rating (public)",
                 "description": "Returns average rating for a specific sitter - no authentication required",
@@ -1246,8 +1884,17 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a sitter"
+                    },
                     "404": {
-                        "description": "Sitter not found"
+                        "description": "Not Found - Sitter not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
@@ -1296,7 +1943,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Service requests retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1320,8 +1967,53 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -1364,10 +2056,124 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad request - Invalid data or business logic error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pet must belong to the owner"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User role restrictions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User must have owner or both role to create service requests"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "owner_id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The owner id field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/service-requests/{id}": {
@@ -1391,7 +2197,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Service request retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1413,10 +2219,72 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Service request not found"
+                        "description": "Service request not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "put": {
                 "tags": [
@@ -1470,13 +2338,104 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Service request not found"
+                        "description": "Service request not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Validation error - Invalid input data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "date_from": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The date from field must be a date after or equal to today."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -1517,10 +2476,72 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Service request not found"
+                        "description": "Service request not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/service-requests/{id}/accept": {
@@ -1566,10 +2587,72 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Service request not found"
+                        "description": "Service request not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/service-requests/{id}/reject": {
@@ -1615,20 +2698,82 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "404": {
-                        "description": "Service request not found"
+                        "description": "Service request not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/service-types": {
+        "/api/service-types": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Service Types"
                 ],
                 "summary": "Get all service types (public)",
-                "description": "Get all service types - no authentication required",
-                "operationId": "e16a3ad3a36f0af963016cf15b5b0ac4",
+                "description": "Returns list of all service types - no authentication required",
+                "operationId": "getServiceTypesList",
                 "responses": {
                     "200": {
                         "description": "List of service types",
@@ -1661,11 +2806,12 @@
                                 }
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/service-types": {
+            },
             "post": {
                 "tags": [
                     "Service Types"
@@ -1725,8 +2871,20 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
@@ -1736,14 +2894,14 @@
                 ]
             }
         },
-        "/api/public/service-types/{id}": {
+        "/api/service-types/{id}": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Service Types"
                 ],
                 "summary": "Get a specific service type (public)",
                 "description": "Get specific service type details - no authentication required",
-                "operationId": "a091e17e826d2151b664e073a8d982a5",
+                "operationId": "34037d0d53b78ec040db3841ff44e929",
                 "parameters": [
                     {
                         "name": "id",
@@ -1785,13 +2943,17 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
                     "404": {
-                        "description": "Service type not found"
+                        "description": "Not Found - Service type not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/service-types/{id}": {
+            },
             "put": {
                 "tags": [
                     "Service Types"
@@ -1836,11 +2998,26 @@
                     "200": {
                         "description": "Service type updated successfully"
                     },
-                    "422": {
-                        "description": "Validation error"
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
                     },
                     "404": {
-                        "description": "Service type not found"
+                        "description": "Not Found - Service type not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Service type with this name already exists"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
@@ -1870,8 +3047,20 @@
                     "204": {
                         "description": "Service type deleted successfully"
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Service type not found"
+                        "description": "Not Found - Service type not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
@@ -1881,10 +3070,10 @@
                 ]
             }
         },
-        "/api/public/sitter-profiles": {
+        "/api/sitter-profiles": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Profiles"
                 ],
                 "summary": "Get list of sitter profiles (public)",
                 "description": "Returns list of sitter profiles with optional filtering - no authentication required",
@@ -1946,11 +3135,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/sitter-profiles": {
+            },
             "post": {
                 "tags": [
                     "Sitter Profiles"
@@ -1992,16 +3191,39 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Sitter profile already exists for this user"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/sitter-profiles/{id}": {
+        "/api/sitter-profiles/{id}": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Profiles"
                 ],
                 "summary": "Get sitter profile information (public)",
                 "description": "Returns sitter profile data - no authentication required",
@@ -2041,13 +3263,20 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
                     "404": {
-                        "description": "Sitter profile not found"
+                        "description": "Not Found - Sitter profile not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/sitter-profiles/{id}": {
+            },
             "put": {
                 "tags": [
                     "Sitter Profiles"
@@ -2100,13 +3329,30 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Sitter profile not found"
+                        "description": "Not Found - Sitter profile not found"
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -2147,16 +3393,33 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Sitter profile not found"
+                        "description": "Not Found - Sitter profile not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/users/{user_id}/sitter-profile": {
+        "/api/users/{user_id}/sitter-profile": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Profiles"
                 ],
                 "summary": "Get sitter profile by user ID (public)",
                 "description": "Returns sitter profile for a specific user - no authentication required",
@@ -2196,16 +3459,28 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not a sitter"
+                    },
                     "404": {
-                        "description": "Sitter profile not found"
+                        "description": "Not Found - User or sitter profile not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
         },
-        "/api/public/sitter-profiles/search": {
+        "/api/sitter-profiles/search": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Profiles"
                 ],
                 "summary": "Search sitter profiles by location (public)",
                 "description": "Search for sitter profiles within a certain radius of given coordinates - no authentication required",
@@ -2270,20 +3545,29 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
         },
-        "/api/public/sitter-services": {
+        "/api/sitter-services": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Services"
                 ],
                 "summary": "Get all sitter services (public)",
-                "description": "Get all sitter services - no authentication required",
-                "operationId": "773ef7be9bda80a5eefc554dc4c77ec3",
+                "description": "Returns list of sitter services with optional filtering - no authentication required",
+                "operationId": "getSitterServicesList",
                 "parameters": [
                     {
                         "name": "service_type_id",
@@ -2348,11 +3632,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/sitter-services": {
+            },
             "post": {
                 "tags": [
                     "Sitter Services"
@@ -2401,20 +3695,40 @@
                     "201": {
                         "description": "Sitter service created successfully"
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/sitter-services/{id}": {
+        "/api/sitter-services/{id}": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Sitter Services"
                 ],
                 "summary": "Get a specific sitter service (public)",
                 "description": "Get specific sitter service details - no authentication required",
-                "operationId": "1fd73c9e9ef2ac9d9c6ab9376ce6f5fa",
+                "operationId": "e069b2e1db039df34a81837da028a1eb",
                 "parameters": [
                     {
                         "name": "id",
@@ -2430,13 +3744,17 @@
                     "200": {
                         "description": "Sitter service details"
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
                     "404": {
-                        "description": "Sitter service not found"
+                        "description": "Not Found - Sitter service not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
-            }
-        },
-        "/api/sitter-services/{id}": {
+            },
             "put": {
                 "tags": [
                     "Sitter Services"
@@ -2496,13 +3814,30 @@
                     "200": {
                         "description": "Sitter service updated successfully"
                     },
-                    "422": {
-                        "description": "Validation error"
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
                     },
                     "404": {
-                        "description": "Sitter service not found"
+                        "description": "Not Found - Sitter service not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -2525,16 +3860,33 @@
                     "204": {
                         "description": "Sitter service deleted successfully"
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "Sitter service not found"
+                        "description": "Not Found - Sitter service not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/public/sitters": {
+        "/api/sitters": {
             "get": {
                 "tags": [
-                    "Public"
+                    "Users"
                 ],
                 "summary": "Get list of sitters (public)",
                 "description": "Returns list of sitters with optional filtering - no authentication required",
@@ -2585,6 +3937,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 }
             }
@@ -2649,11 +4013,29 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
+                    "404": {
+                        "description": "Not Found - The requested resource was not found"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
@@ -2698,10 +4080,30 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
+                    "409": {
+                        "description": "Conflict - User with this email already exists"
+                    },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/users/{id}": {
@@ -2747,10 +4149,27 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "User not found"
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "put": {
                 "tags": [
@@ -2804,13 +4223,33 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "User not found"
+                        "description": "Not Found - User not found"
+                    },
+                    "409": {
+                        "description": "Conflict - User with this email already exists"
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Unprocessable Entity - Validation failed for the input data"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -2851,10 +4290,27 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request - Invalid parameters provided"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid authentication token"
+                    },
+                    "403": {
+                        "description": "Forbidden - You do not have access to this resource"
+                    },
                     "404": {
-                        "description": "User not found"
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error - An unexpected error occurred on the server"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         }
     },
@@ -3546,10 +5002,6 @@
         {
             "name": "Pets",
             "description": "Pets"
-        },
-        {
-            "name": "Public",
-            "description": "Public"
         },
         {
             "name": "Ratings",

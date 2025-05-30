@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +14,7 @@ use Illuminate\Validation\ValidationException;
  *     description="API endpoints for user authentication"
  * )
  */
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     /**
      * @OA\Post(
@@ -50,8 +49,20 @@ class AuthController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - User with this email already exists"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -109,8 +120,20 @@ class AuthController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid credentials"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Invalid credentials"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -155,8 +178,16 @@ class AuthController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
      *         response=401,
-     *         description="Unauthenticated"
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -189,7 +220,11 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Unauthenticated"
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

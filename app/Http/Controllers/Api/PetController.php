@@ -17,6 +17,7 @@ class PetController extends BaseController
      *     tags={"Pets"},
      *     summary="Get list of pets",
      *     description="Returns list of pets with optional filtering",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="owner_id",
      *         in="query",
@@ -33,7 +34,7 @@ class PetController extends BaseController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Pets retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Pets retrieved successfully"),
@@ -42,6 +43,22 @@ class PetController extends BaseController
      *                 type="array",
      *                 @OA\Items(ref="#/components/schemas/Pet")
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
      *         )
      *     )
      * )
@@ -70,6 +87,7 @@ class PetController extends BaseController
      *     tags={"Pets"},
      *     summary="Create new pet",
      *     description="Create a new pet profile",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/PetRequest")
@@ -84,8 +102,45 @@ class PetController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User role restrictions",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="User must have owner or both role to create pets")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="name",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The name field is required.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -123,6 +178,7 @@ class PetController extends BaseController
      *     tags={"Pets"},
      *     summary="Get pet information",
      *     description="Returns pet data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Pet id",
@@ -132,7 +188,7 @@ class PetController extends BaseController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Pet retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Pet retrieved successfully"),
@@ -140,8 +196,28 @@ class PetController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Pet not found"
+     *         description="Pet not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Pet not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -163,6 +239,7 @@ class PetController extends BaseController
      *     tags={"Pets"},
      *     summary="Update existing pet",
      *     description="Update pet data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Pet id",
@@ -184,12 +261,45 @@ class PetController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Pet not found"
+     *         description="Pet not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Pet not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="weight",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The weight must be between 0.1 and 200.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -227,6 +337,7 @@ class PetController extends BaseController
      *     tags={"Pets"},
      *     summary="Delete pet",
      *     description="Delete a pet",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Pet id",
@@ -243,8 +354,28 @@ class PetController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Pet not found"
+     *         description="Pet not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Pet not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */

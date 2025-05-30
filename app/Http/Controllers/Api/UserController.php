@@ -12,9 +12,9 @@ class UserController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/public/sitters",
+     *     path="/api/sitters",
      *     operationId="getSittersList",
-     *     tags={"Public"},
+     *     tags={"Users"},
      *     summary="Get list of sitters (public)",
      *     description="Returns list of sitters with optional filtering - no authentication required",
      *     @OA\Parameter(
@@ -43,6 +43,22 @@ class UserController extends BaseController
      *                 @OA\Items(ref="#/components/schemas/User")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -73,7 +89,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Get list of users",
      *     description="Returns list of users with optional filtering by role",
-     *     security={{"sanctum":{}}},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="role",
      *         in="query",
@@ -103,6 +119,30 @@ class UserController extends BaseController
      *                 @OA\Items(ref="#/components/schemas/User")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -130,6 +170,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Create new user",
      *     description="Create a new user account",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/UserRequest")
@@ -144,8 +185,28 @@ class UserController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - User with this email already exists"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -184,6 +245,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Get user information",
      *     description="Returns user data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="User id",
@@ -201,8 +263,24 @@ class UserController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Not Found - User not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -224,6 +302,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Update existing user",
      *     description="Update user data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="User id",
@@ -245,12 +324,32 @@ class UserController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Not Found - User not found"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - User with this email already exists"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -298,6 +397,7 @@ class UserController extends BaseController
      *     tags={"Users"},
      *     summary="Delete user",
      *     description="Delete a user",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="User id",
@@ -314,8 +414,24 @@ class UserController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Not Found - User not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

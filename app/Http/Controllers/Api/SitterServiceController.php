@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\SitterService;
 use Illuminate\Http\Request;
 
@@ -12,14 +11,15 @@ use Illuminate\Http\Request;
  *     description="API Endpoints for managing sitter services"
  * )
  */
-class SitterServiceController extends Controller
+class SitterServiceController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/public/sitter-services",
+     *     path="/api/sitter-services",
+     *     operationId="getSitterServicesList",
+     *     tags={"Sitter Services"},
      *     summary="Get all sitter services (public)",
-     *     tags={"Public"},
-     *     description="Get all sitter services - no authentication required",
+     *     description="Returns list of sitter services with optional filtering - no authentication required",
      *     @OA\Parameter(
      *         name="service_type_id",
      *         in="query",
@@ -50,6 +50,22 @@ class SitterServiceController extends Controller
      *                 )
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -69,6 +85,7 @@ class SitterServiceController extends Controller
      *     path="/api/sitter-services",
      *     summary="Create a new sitter service",
      *     tags={"Sitter Services"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -85,8 +102,28 @@ class SitterServiceController extends Controller
      *         description="Sitter service created successfully"
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -106,9 +143,9 @@ class SitterServiceController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/public/sitter-services/{id}",
+     *     path="/api/sitter-services/{id}",
      *     summary="Get a specific sitter service (public)",
-     *     tags={"Public"},
+     *     tags={"Sitter Services"},
      *     description="Get specific sitter service details - no authentication required",
      *     @OA\Parameter(
      *         name="id",
@@ -122,8 +159,16 @@ class SitterServiceController extends Controller
      *         description="Sitter service details"
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter service not found"
+     *         description="Not Found - Sitter service not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -137,6 +182,7 @@ class SitterServiceController extends Controller
      *     path="/api/sitter-services/{id}",
      *     summary="Update a sitter service",
      *     tags={"Sitter Services"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -160,12 +206,28 @@ class SitterServiceController extends Controller
      *         description="Sitter service updated successfully"
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Sitter service not found"
+     *         description="Not Found - Sitter service not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -188,6 +250,7 @@ class SitterServiceController extends Controller
      *     path="/api/sitter-services/{id}",
      *     summary="Delete a sitter service",
      *     tags={"Sitter Services"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -200,8 +263,24 @@ class SitterServiceController extends Controller
      *         description="Sitter service deleted successfully"
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter service not found"
+     *         description="Not Found - Sitter service not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

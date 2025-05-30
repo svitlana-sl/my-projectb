@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\ServiceType;
 use Illuminate\Http\Request;
 
@@ -12,14 +11,15 @@ use Illuminate\Http\Request;
  *     description="API Endpoints for managing service types"
  * )
  */
-class ServiceTypeController extends Controller
+class ServiceTypeController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/public/service-types",
+     *     path="/api/service-types",
+     *     operationId="getServiceTypesList",
+     *     tags={"Service Types"},
      *     summary="Get all service types (public)",
-     *     tags={"Public"},
-     *     description="Get all service types - no authentication required",
+     *     description="Returns list of all service types - no authentication required",
      *     @OA\Response(
      *         response=200,
      *         description="List of service types",
@@ -34,6 +34,10 @@ class ServiceTypeController extends Controller
      *                 @OA\Property(property="updated_at", type="string", format="date-time")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -69,8 +73,24 @@ class ServiceTypeController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -87,9 +107,9 @@ class ServiceTypeController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/public/service-types/{id}",
+     *     path="/api/service-types/{id}",
      *     summary="Get a specific service type (public)",
-     *     tags={"Public"},
+     *     tags={"Service Types"},
      *     description="Get specific service type details - no authentication required",
      *     @OA\Parameter(
      *         name="id",
@@ -111,8 +131,16 @@ class ServiceTypeController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service type not found"
+     *         description="Not Found - Service type not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -147,12 +175,32 @@ class ServiceTypeController extends Controller
      *         description="Service type updated successfully"
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Service type not found"
+     *         description="Not Found - Service type not found"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - Service type with this name already exists"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -185,8 +233,24 @@ class ServiceTypeController extends Controller
      *         description="Service type deleted successfully"
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service type not found"
+     *         description="Not Found - Service type not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

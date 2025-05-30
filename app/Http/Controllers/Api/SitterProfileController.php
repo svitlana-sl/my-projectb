@@ -12,9 +12,9 @@ class SitterProfileController extends BaseController
 {
     /**
      * @OA\Get(
-     *     path="/api/public/sitter-profiles",
+     *     path="/api/sitter-profiles",
      *     operationId="getSitterProfilesList",
-     *     tags={"Public"},
+     *     tags={"Sitter Profiles"},
      *     summary="Get list of sitter profiles (public)",
      *     description="Returns list of sitter profiles with optional filtering - no authentication required",
      *     @OA\Parameter(
@@ -50,6 +50,22 @@ class SitterProfileController extends BaseController
      *                 @OA\Items(ref="#/components/schemas/SitterProfile")
      *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -81,6 +97,7 @@ class SitterProfileController extends BaseController
      *     tags={"Sitter Profiles"},
      *     summary="Create new sitter profile",
      *     description="Create a new sitter profile",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/SitterProfileRequest")
@@ -95,8 +112,32 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflict - Sitter profile already exists for this user"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -128,9 +169,9 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/public/sitter-profiles/{id}",
+     *     path="/api/sitter-profiles/{id}",
      *     operationId="getSitterProfileById",
-     *     tags={"Public"},
+     *     tags={"Sitter Profiles"},
      *     summary="Get sitter profile information (public)",
      *     description="Returns sitter profile data - no authentication required",
      *     @OA\Parameter(
@@ -150,8 +191,20 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter profile not found"
+     *         description="Not Found - Sitter profile not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -173,6 +226,7 @@ class SitterProfileController extends BaseController
      *     tags={"Sitter Profiles"},
      *     summary="Update existing sitter profile",
      *     description="Update sitter profile data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Sitter profile id",
@@ -194,12 +248,28 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter profile not found"
+     *         description="Not Found - Sitter profile not found"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -235,6 +305,7 @@ class SitterProfileController extends BaseController
      *     tags={"Sitter Profiles"},
      *     summary="Delete sitter profile",
      *     description="Delete a sitter profile",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Sitter profile id",
@@ -251,8 +322,24 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Missing or invalid authentication token"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - You do not have access to this resource"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter profile not found"
+     *         description="Not Found - Sitter profile not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -271,9 +358,9 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/public/users/{user_id}/sitter-profile",
+     *     path="/api/users/{user_id}/sitter-profile",
      *     operationId="getSitterProfileByUserId",
-     *     tags={"Public"},
+     *     tags={"Sitter Profiles"},
      *     summary="Get sitter profile by user ID (public)",
      *     description="Returns sitter profile for a specific user - no authentication required",
      *     @OA\Parameter(
@@ -293,8 +380,24 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User is not a sitter"
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Sitter profile not found"
+     *         description="Not Found - User or sitter profile not found"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */
@@ -321,9 +424,9 @@ class SitterProfileController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/public/sitter-profiles/search",
+     *     path="/api/sitter-profiles/search",
      *     operationId="searchSitterProfiles",
-     *     tags={"Public"},
+     *     tags={"Sitter Profiles"},
      *     summary="Search sitter profiles by location (public)",
      *     description="Search for sitter profiles within a certain radius of given coordinates - no authentication required",
      *     @OA\Parameter(
@@ -361,8 +464,20 @@ class SitterProfileController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request - Invalid parameters provided"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found - The requested resource was not found"
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Unprocessable Entity - Validation failed for the input data"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error - An unexpected error occurred on the server"
      *     )
      * )
      */

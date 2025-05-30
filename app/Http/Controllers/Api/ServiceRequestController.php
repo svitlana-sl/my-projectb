@@ -17,6 +17,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Get list of service requests",
      *     description="Returns list of service requests with optional filtering",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="owner_id",
      *         in="query",
@@ -43,7 +44,7 @@ class ServiceRequestController extends BaseController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Service requests retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Service requests retrieved successfully"),
@@ -52,6 +53,22 @@ class ServiceRequestController extends BaseController
      *                 type="array",
      *                 @OA\Items(ref="#/components/schemas/ServiceRequest")
      *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
      *         )
      *     )
      * )
@@ -84,6 +101,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Create new service request",
      *     description="Create a new service request",
+     *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/ServiceRequestRequest")
@@ -98,8 +116,53 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Bad request - Invalid data or business logic error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Pet must belong to the owner")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden - User role restrictions",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="User must have owner or both role to create service requests")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="owner_id",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The owner id field is required.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -133,7 +196,7 @@ class ServiceRequestController extends BaseController
         // Verify pet belongs to owner
         $pet = \App\Models\Pet::find($request->pet_id);
         if ($pet->owner_id !== $request->owner_id) {
-            return $this->sendError('Pet must belong to the owner', [], 403);
+            return $this->sendError('Pet must belong to the owner', [], 400);
         }
 
         $serviceRequest = ServiceRequest::create($request->all());
@@ -149,6 +212,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Get service request information",
      *     description="Returns service request data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Service request id",
@@ -158,7 +222,7 @@ class ServiceRequestController extends BaseController
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Service request retrieved successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Service request retrieved successfully"),
@@ -166,8 +230,28 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service request not found"
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -189,6 +273,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Update existing service request",
      *     description="Update service request data",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Service request id",
@@ -210,12 +295,45 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service request not found"
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error - Invalid input data",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="date_from",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The date from field must be a date after or equal to today.")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -254,6 +372,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Delete service request",
      *     description="Delete a service request",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Service request id",
@@ -270,8 +389,28 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service request not found"
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -295,6 +434,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Accept service request",
      *     description="Accept a service request (sitter action)",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Service request id",
@@ -312,8 +452,28 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service request not found"
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
@@ -338,6 +498,7 @@ class ServiceRequestController extends BaseController
      *     tags={"Service Requests"},
      *     summary="Reject service request",
      *     description="Reject a service request (sitter action)",
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
      *         description="Service request id",
@@ -355,8 +516,28 @@ class ServiceRequestController extends BaseController
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
-     *         description="Service request not found"
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
      *     )
      * )
      */
