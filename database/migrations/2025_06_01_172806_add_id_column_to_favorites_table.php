@@ -16,28 +16,43 @@ return new class extends Migration
         $columns = Schema::getColumnListing('favorites');
         
         if (!in_array('id', $columns)) {
-            // Step 1: Add simple bigint column first (no auto-increment, no primary key)
-            Schema::table('favorites', function (Blueprint $table) {
-                $table->unsignedBigInteger('temp_id')->nullable()->first();
+            // Step 1: Create temporary table with correct structure
+            Schema::create('favorites_temp', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+                $table->foreignId('sitter_id')->constrained('users')->onDelete('cascade');
+                $table->timestamp('created_at')->useCurrent();
+                
+                // Add unique constraint
+                $table->unique(['owner_id', 'sitter_id'], 'favorites_temp_owner_sitter_unique');
             });
             
-            // Step 2: Populate the temp_id with sequential values for existing records
-            $existingRecords = DB::table('favorites')->count();
-            if ($existingRecords > 0) {
-                DB::statement('SET @row_number = 0');
-                DB::statement('UPDATE favorites SET temp_id = (@row_number := @row_number + 1)');
+            // Step 2: Copy data from old table to new table
+            $existingRecords = DB::table('favorites')->get();
+            foreach ($existingRecords as $record) {
+                DB::table('favorites_temp')->insert([
+                    'owner_id' => $record->owner_id,
+                    'sitter_id' => $record->sitter_id,
+                    'created_at' => $record->created_at,
+                ]);
             }
             
-            // Step 3: Drop the existing composite primary key (owner_id, sitter_id)
-            DB::statement('ALTER TABLE favorites DROP PRIMARY KEY');
+            // Step 3: Drop old table
+            Schema::dropIfExists('favorites');
             
-            // Step 4: Modify temp_id to be auto-increment primary key and rename to id
-            DB::statement('ALTER TABLE favorites CHANGE temp_id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST');
+            // Step 4: Rename temp table to favorites
+            Schema::rename('favorites_temp', 'favorites');
         }
         
-        // Ensure unique constraint exists (should be added by emergency migration)
+        // Ensure unique constraint exists with correct name
         $indexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_owner_sitter_unique'");
         if (empty($indexes)) {
+            // Check if temp constraint exists and rename it
+            $tempIndexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_temp_owner_sitter_unique'");
+            if (!empty($tempIndexes)) {
+                DB::statement('ALTER TABLE favorites DROP INDEX favorites_temp_owner_sitter_unique');
+            }
+            
             Schema::table('favorites', function (Blueprint $table) {
                 $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
             });
