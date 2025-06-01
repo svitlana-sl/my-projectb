@@ -12,36 +12,53 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Check current state of favorites table and fix it
+        // Get current table structure
         $columns = Schema::getColumnListing('favorites');
+        $indexes = DB::select("SHOW INDEX FROM favorites");
         
-        // If table has ID column but no unique constraint, add it
-        if (in_array('id', $columns)) {
-            // Check if unique constraint exists
-            $indexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_owner_sitter_unique'");
-            
-            if (empty($indexes)) {
-                Schema::table('favorites', function (Blueprint $table) {
-                    $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
-                });
+        // Check if ID column exists
+        $hasIdColumn = in_array('id', $columns);
+        
+        // Check what primary keys exist
+        $primaryKeys = collect($indexes)->where('Key_name', 'PRIMARY')->pluck('Column_name')->toArray();
+        
+        // Check if unique constraint exists
+        $hasUniqueConstraint = collect($indexes)->where('Key_name', 'favorites_owner_sitter_unique')->isNotEmpty();
+        
+        if ($hasIdColumn) {
+            // ID column exists, just ensure we have the unique constraint
+            if (!$hasUniqueConstraint) {
+                try {
+                    Schema::table('favorites', function (Blueprint $table) {
+                        $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
+                    });
+                } catch (\Exception $e) {
+                    // If constraint already exists with different name, ignore
+                    if (!str_contains($e->getMessage(), 'Duplicate key name')) {
+                        throw $e;
+                    }
+                }
             }
         } else {
-            // If no ID column exists, add it properly
-            // First check if we have composite primary key
-            $primaryKeys = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'PRIMARY'");
-            
-            if (!empty($primaryKeys)) {
-                // We have a primary key, need to work around it
+            // ID column doesn't exist, need to add it
+            if (in_array('owner_id', $primaryKeys) && in_array('sitter_id', $primaryKeys)) {
+                // We have composite primary key, need to replace it
                 Schema::table('favorites', function (Blueprint $table) {
                     $table->bigIncrements('temp_id')->first();
                 });
                 
-                // Drop the composite primary key and set new one
+                // Drop composite primary key and set new one
                 DB::statement('ALTER TABLE favorites DROP PRIMARY KEY');
                 DB::statement('ALTER TABLE favorites CHANGE temp_id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST');
                 
                 // Add unique constraint
                 Schema::table('favorites', function (Blueprint $table) {
+                    $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
+                });
+            } else {
+                // No primary key or different structure, just add ID
+                Schema::table('favorites', function (Blueprint $table) {
+                    $table->id()->first();
                     $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
                 });
             }
