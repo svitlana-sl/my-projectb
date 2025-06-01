@@ -50,6 +50,7 @@ class SitterProfileResource extends Resource
                     
                 Forms\Components\TextInput::make('default_hourly_rate')
                     ->label('Default Hourly Rate')
+                    ->required()
                     ->numeric()
                     ->step(0.01)
                     ->minValue(0)
@@ -59,14 +60,20 @@ class SitterProfileResource extends Resource
                 Forms\Components\Fieldset::make('Location')
                     ->schema([
                         Forms\Components\TextInput::make('latitude')
+                            ->label('Latitude')
+                            ->required()
                             ->numeric()
                             ->step(0.0000001)
-                            ->helperText('Latitude for location-based searches'),
+                            ->rules(['between:-90,90'])
+                            ->helperText('Latitude for location-based searches (required)'),
                             
                         Forms\Components\TextInput::make('longitude')
+                            ->label('Longitude')
+                            ->required()
                             ->numeric()
                             ->step(0.0000001)
-                            ->helperText('Longitude for location-based searches'),
+                            ->rules(['between:-180,180'])
+                            ->helperText('Longitude for location-based searches (required)'),
                     ])
                     ->columns(2),
             ]);

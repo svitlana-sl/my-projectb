@@ -147,8 +147,8 @@ class SitterProfileController extends BaseController
             'user_id' => 'required|exists:users,id|unique:sitter_profiles,user_id',
             'bio' => 'nullable|string|max:2000',
             'default_hourly_rate' => 'required|numeric|min:0|max:1000',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
         if ($validator->fails()) {
@@ -284,8 +284,8 @@ class SitterProfileController extends BaseController
         $validator = Validator::make($request->all(), [
             'bio' => 'nullable|string|max:2000',
             'default_hourly_rate' => 'sometimes|required|numeric|min:0|max:1000',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'latitude' => 'nullable|numeric|between:-90,90', // Required in database, but optional for updates
+            'longitude' => 'nullable|numeric|between:-180,180', // Required in database, but optional for updates
         ]);
 
         if ($validator->fails()) {
@@ -542,7 +542,7 @@ class SitterProfileController extends BaseController
  *     type="object",
  *     title="Sitter Profile Request",
  *     description="Sitter Profile request model",
- *     required={"user_id", "default_hourly_rate"},
+ *     required={"user_id", "default_hourly_rate", "latitude", "longitude"},
  *     @OA\Property(property="user_id", type="integer", example=2),
  *     @OA\Property(property="bio", type="string", example="Experienced pet sitter with 5 years of experience. Love all animals!"),
  *     @OA\Property(property="default_hourly_rate", type="number", format="float", example=25.50),
