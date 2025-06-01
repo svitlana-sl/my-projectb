@@ -13,6 +13,11 @@ class Favorite extends Model
     // Only use created_at, not updated_at
     const UPDATED_AT = null;
 
+    // Define composite primary key
+    protected $primaryKey = ['owner_id', 'sitter_id'];
+    public $incrementing = false;
+    protected $keyType = 'array';
+
     protected $fillable = [
         'owner_id',
         'sitter_id',
@@ -23,6 +28,22 @@ class Favorite extends Model
         return [
             'created_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'owner_id,sitter_id';
+    }
+
+    /**
+     * Get the value of the model's route key.
+     */
+    public function getRouteKey()
+    {
+        return $this->owner_id . ',' . $this->sitter_id;
     }
 
     /**
