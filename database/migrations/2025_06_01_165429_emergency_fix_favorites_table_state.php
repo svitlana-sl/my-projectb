@@ -25,8 +25,8 @@ return new class extends Migration
         // Check if unique constraint exists
         $hasUniqueConstraint = collect($indexes)->where('Key_name', 'favorites_owner_sitter_unique')->isNotEmpty();
         
-        if ($hasIdColumn) {
-            // ID column exists, just ensure we have the unique constraint
+        // If ID column exists and is primary key, we're good - just add unique constraint if missing
+        if ($hasIdColumn && in_array('id', $primaryKeys)) {
             if (!$hasUniqueConstraint) {
                 try {
                     Schema::table('favorites', function (Blueprint $table) {
@@ -34,13 +34,23 @@ return new class extends Migration
                     });
                 } catch (\Exception $e) {
                     // If constraint already exists with different name, ignore
-                    if (!str_contains($e->getMessage(), 'Duplicate key name')) {
+                    if (!str_contains($e->getMessage(), 'Duplicate key name') && 
+                        !str_contains($e->getMessage(), 'Duplicate entry')) {
                         throw $e;
                     }
                 }
             }
-        } else {
-            // ID column doesn't exist, need to add it
+            return; // We're done, table is in correct state
+        }
+        
+        // If ID column exists but is not primary key (shouldn't happen, but just in case)
+        if ($hasIdColumn && !in_array('id', $primaryKeys)) {
+            // This is a weird state, let's not touch it
+            return;
+        }
+        
+        // If no ID column exists, add it properly
+        if (!$hasIdColumn) {
             if (in_array('owner_id', $primaryKeys) && in_array('sitter_id', $primaryKeys)) {
                 // We have composite primary key, need to replace it
                 Schema::table('favorites', function (Blueprint $table) {
