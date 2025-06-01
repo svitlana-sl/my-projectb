@@ -35,28 +35,21 @@ class FavoriteResource extends Resource
                     ->options(User::where('role', 'owner')->orWhere('role', 'both')->pluck('name', 'id'))
                     ->required()
                     ->searchable()
-                    ->rules([
-                        function () {
-                            return function (string $attribute, $value, \Closure $fail) {
-                                $sitterId = request()->input('sitter_id');
-                                if ($sitterId && Favorite::where('owner_id', $value)->where('sitter_id', $sitterId)->exists()) {
-                                    $fail('This combination of owner and sitter already exists in favorites.');
-                                }
-                            };
-                        },
-                    ]),
+                    ->reactive()
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('sitter_id', null)),
                     
                 Forms\Components\Select::make('sitter_id')
                     ->label('Sitter')
                     ->options(User::where('role', 'sitter')->orWhere('role', 'both')->pluck('name', 'id'))
                     ->required()
                     ->searchable()
+                    ->reactive()
                     ->rules([
                         function () {
                             return function (string $attribute, $value, \Closure $fail) {
                                 $ownerId = request()->input('owner_id');
-                                if ($ownerId && Favorite::where('owner_id', $ownerId)->where('sitter_id', $value)->exists()) {
-                                    $fail('This combination of owner and sitter already exists in favorites.');
+                                if ($ownerId && $value && Favorite::where('owner_id', $ownerId)->where('sitter_id', $value)->exists()) {
+                                    $fail('This sitter is already in favorites for this owner.');
                                 }
                             };
                         },
@@ -94,14 +87,6 @@ class FavoriteResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
-    }
-
-    /**
-     * Get the table record key for composite primary key
-     */
-    public static function getTableRecordKey($record): string
-    {
-        return $record->owner_id . ',' . $record->sitter_id;
     }
 
     public static function getRelations(): array
