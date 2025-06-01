@@ -16,17 +16,26 @@ return new class extends Migration
         $columns = Schema::getColumnListing('favorites');
         
         if (!in_array('id', $columns)) {
-            // Add auto-increment ID column as primary key
+            // Step 1: Add simple bigint column first (no auto-increment, no primary key)
             Schema::table('favorites', function (Blueprint $table) {
-                $table->bigIncrements('temp_id')->first();
+                $table->unsignedBigInteger('temp_id')->nullable()->first();
             });
             
-            // Drop the composite primary key and set new primary key
+            // Step 2: Populate the temp_id with sequential values for existing records
+            $existingRecords = DB::table('favorites')->count();
+            if ($existingRecords > 0) {
+                DB::statement('SET @row_number = 0');
+                DB::statement('UPDATE favorites SET temp_id = (@row_number := @row_number + 1)');
+            }
+            
+            // Step 3: Drop the existing composite primary key (owner_id, sitter_id)
             DB::statement('ALTER TABLE favorites DROP PRIMARY KEY');
+            
+            // Step 4: Modify temp_id to be auto-increment primary key and rename to id
             DB::statement('ALTER TABLE favorites CHANGE temp_id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST');
         }
         
-        // Ensure unique constraint exists (might be added by emergency migration)
+        // Ensure unique constraint exists (should be added by emergency migration)
         $indexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_owner_sitter_unique'");
         if (empty($indexes)) {
             Schema::table('favorites', function (Blueprint $table) {
