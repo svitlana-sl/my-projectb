@@ -19,8 +19,8 @@
             </style>
         @endif
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
+    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] min-h-screen flex flex-col">
+        <header class="w-full max-w-none text-sm p-6 lg:p-8 not-has-[nav]:hidden">
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
                     @auth
@@ -50,8 +50,8 @@
             @endif
         </header>
 
-        <div class="relative flex flex-col items-center justify-center text-center w-full flex-1 py-20 px-4"
-             style="background: linear-gradient(135deg, #7e5bef 0%, #a78bfa 100%);">
+        <div class="relative flex flex-col items-center justify-center text-center w-full flex-1"
+             style="background: linear-gradient(135deg, #7e5bef 0%, #a78bfa 100%); padding: 80px 20px;">
 
             <!-- Назва проєкту -->
             <h1 style="color: white; font-size: 5rem; font-weight: 800; margin-bottom: 1rem; line-height: 1;">
