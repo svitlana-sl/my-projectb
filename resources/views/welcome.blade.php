@@ -1,3 +1,76 @@
+@auth
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>Best Paws Pet Care</title>
+
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" href="/favicon.ico">
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Styles -->
+        @livewireStyles
+    </head>
+    <body class="font-sans antialiased">
+        <x-banner />
+
+        <div class="min-h-screen" style="background: linear-gradient(135deg, #7e5bef 0%, #a78bfa 100%);">
+            @livewire('navigation-menu')
+
+            <!-- Page Content -->
+            <main>
+                <div class="relative flex flex-col items-center justify-center text-center w-full"
+                     style="padding: 80px 20px; min-height: 80vh;">
+
+                    <!-- Назва проєкту -->
+                    <h1 style="color: white; font-size: 5rem; font-weight: 800; margin-bottom: 1rem; line-height: 1;">
+                        Best Paws Pet Care
+                    </h1>
+
+                    <!-- Підзаголовок -->
+                    <p style="color: #e9d5ff; font-size: 1.5rem; font-weight: 600; margin-bottom: 3rem; line-height: 1.2;">
+                        Your trusted pet sitting service
+                    </p>
+
+                    <!-- Кнопки -->
+                    <div class="flex flex-row gap-6 justify-center">
+                        <a href="/api/documentation" target="_blank"
+                           style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2.5rem; border-radius: 9999px; color: white; background: linear-gradient(to right, #9333ea, #7c3aed); font-size: 1rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); min-width: 220px; text-decoration: none;"
+                           onmouseover="this.style.background='linear-gradient(to right, #7c3aed, #6d28d9)'"
+                           onmouseout="this.style.background='linear-gradient(to right, #9333ea, #7c3aed)'">
+                            API Documentation
+                        </a>
+
+                        <a href="/admin"
+                           style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2.5rem; border-radius: 9999px; color: white; background: linear-gradient(to right, #8b5cf6, #7c3aed); font-size: 1rem; font-weight: 600; transition: all 0.3s; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); min-width: 220px; text-decoration: none;"
+                           onmouseover="this.style.background='linear-gradient(to right, #7c3aed, #6d28d9)'"
+                           onmouseout="this.style.background='linear-gradient(to right, #8b5cf6, #7c3aed)'">
+                            Admin Panel
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        @stack('modals')
+
+        @livewireScripts
+    </body>
+</html>
+@else
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -36,14 +109,6 @@
 
                     <!-- Navigation Links -->
                     <div class="flex items-center gap-4">
-                    @auth
-                        <a
-                            href="{{ url('/dashboard') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                        >
-                            Dashboard
-                        </a>
-                    @else
                         <a
                             href="{{ route('login') }}"
                             class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
@@ -58,7 +123,6 @@
                                 Register
                             </a>
                         @endif
-                    @endauth
                     </div>
                 </nav>
             @endif
@@ -100,3 +164,4 @@
         @endif
     </body>
 </html>
+@endauth
