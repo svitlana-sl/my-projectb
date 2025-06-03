@@ -4,7 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Best Paws Pet Care</title>
+
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" href="/favicon.ico">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,7 +28,14 @@
     <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] min-h-screen flex flex-col">
         <header class="w-full max-w-none text-sm p-6 lg:p-8 not-has-[nav]:hidden">
             @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
+                <nav class="flex items-center justify-between gap-4">
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <img src="/android-chrome-192x192.png" alt="Best Paws Pet Care" style="width: 75px; height: 75px;">
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="flex items-center gap-4">
                     @auth
                         <a
                             href="{{ url('/dashboard') }}"
@@ -46,6 +59,7 @@
                             </a>
                         @endif
                     @endauth
+                    </div>
                 </nav>
             @endif
         </header>
