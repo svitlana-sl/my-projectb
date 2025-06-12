@@ -57,10 +57,26 @@ class PetResource extends Resource
                     ->minValue(0.1)
                     ->suffix('kg'),
                     
+                Forms\Components\FileUpload::make('photo_file')
+                    ->label('Pet Photo')
+                    ->image()
+                    ->directory('temp')
+                    ->disk('public')
+                    ->imageEditor()
+                    ->imageCropAspectRatio('1:1')
+                    ->imageResizeTargetWidth('600')
+                    ->imageResizeTargetHeight('600')
+                    ->maxSize(10240) // 10MB
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'])
+                    ->visibility('public')
+                    ->dehydrated(true) // Change to true so file data is passed to form handler
+                    ->helperText('Максимальний розмір: 10MB. Підтримувані формати: JPEG, PNG, GIF, WebP, AVIF'),
+                    
                 Forms\Components\TextInput::make('photo_url')
-                    ->label('Photo URL')
+                    ->label('Photo URL (Alternative)')
                     ->url()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->helperText('You can either upload a file above or provide a URL here'),
             ]);
     }
 
@@ -89,9 +105,11 @@ class PetResource extends Resource
                     ->sortable()
                     ->suffix(' kg'),
                     
-                Tables\Columns\ImageColumn::make('photo_url')
+                Tables\Columns\ImageColumn::make('photo_display')
                     ->label('Photo')
-                    ->circular(),
+                    ->circular()
+                    ->getStateUsing(fn ($record) => $record->getDisplayPhotoUrl())
+                    ->defaultImageUrl(fn ($record) => $record->getDefaultImage()),
                     
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

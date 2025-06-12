@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Traits\HasFileUpload;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -20,6 +21,20 @@ class User extends Authenticatable implements FilamentUser
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasFileUpload;
+
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Clean up files when user is deleted
+        static::deleting(function ($user) {
+            $user->deleteOldAvatar();
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -33,6 +48,8 @@ class User extends Authenticatable implements FilamentUser
         'is_admin',
         'role',
         'avatar_url',
+        'avatar_path',
+        'avatar_thumb_path',
         'address_line',
         'city',
         'postal_code',
@@ -154,5 +171,57 @@ class User extends Authenticatable implements FilamentUser
     public function serviceRequestsReceived(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ServiceRequest::class, 'sitter_id');
+    }
+    
+    /**
+     * Get avatar URL (prioritize uploaded file over URL)
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar_thumb_path) {
+            return $this->getFileUrl($this->avatar_thumb_path);
+        }
+        
+        if ($this->avatar_path) {
+            return $this->getFileUrl($this->avatar_path);
+        }
+        
+        if ($this->attributes['avatar_url']) {
+            return $this->attributes['avatar_url'];
+        }
+        
+        return $this->getDefaultImage();
+    }
+    
+    /**
+     * Handle avatar upload
+     */
+    public function uploadAvatar(\Illuminate\Http\UploadedFile $file): void
+    {
+        // Delete old files
+        $this->deleteOldAvatar();
+        
+        // Upload new files
+        $filePaths = $this->uploadFile(
+            $file,
+            'avatars',
+            'avatar_path',
+            'avatar_thumb_path',
+            200,
+            200
+        );
+        
+        $this->update($filePaths);
+    }
+    
+    /**
+     * Delete old avatar files
+     */
+    public function deleteOldAvatar(): void
+    {
+        $this->deleteFiles([
+            $this->avatar_path,
+            $this->avatar_thumb_path
+        ]);
     }
 }

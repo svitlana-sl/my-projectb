@@ -60,10 +60,26 @@ class UserResource extends Resource
                 Forms\Components\Toggle::make('is_admin')
                     ->label('Admin Access'),
                     
+                Forms\Components\FileUpload::make('avatar_file')
+                    ->label('Avatar')
+                    ->image()
+                    ->directory('temp')
+                    ->disk('public')
+                    ->imageEditor()
+                    ->imageCropAspectRatio('1:1')
+                    ->imageResizeTargetWidth('400')
+                    ->imageResizeTargetHeight('400')
+                    ->maxSize(10240) // 10MB
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'])
+                    ->visibility('public')
+                    ->dehydrated(true) // Change to true so file data is passed to form handler
+                    ->helperText('Максимальний розмір: 10MB. Підтримувані формати: JPEG, PNG, GIF, WebP, AVIF'),
+                    
                 Forms\Components\TextInput::make('avatar_url')
-                    ->label('Avatar URL')
+                    ->label('Avatar URL (Alternative)')
                     ->url()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->helperText('You can either upload a file above or provide a URL here'),
                     
                 Forms\Components\Fieldset::make('Address')
                     ->schema([
@@ -101,7 +117,8 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar_url')
                     ->label('Avatar')
-                    ->circular(),
+                    ->circular()
+                    ->defaultImageUrl(fn ($record) => $record->getDefaultImage()),
                     
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
