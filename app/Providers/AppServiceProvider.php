@@ -14,10 +14,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Примусове встановлення кореневого URL з .env → APP_URL
-        URL::forceRootUrl(config('app.url'));
-
-        // Всі згенеровані посилання (asset(), route(), url() тощо) — через HTTPS
-        URL::forceScheme('https');
+        // Force HTTPS and correct URL for production
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+            URL::forceRootUrl(config('app.url'));
+        }
     }
 }
