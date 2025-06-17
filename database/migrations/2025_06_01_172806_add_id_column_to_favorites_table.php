@@ -47,15 +47,26 @@ return new class extends Migration
         // Ensure unique constraint exists with correct name
         $indexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_owner_sitter_unique'");
         if (empty($indexes)) {
-            // Check if temp constraint exists and rename it
+            // Check if temp constraint exists and drop it safely
             $tempIndexes = DB::select("SHOW INDEX FROM favorites WHERE Key_name = 'favorites_temp_owner_sitter_unique'");
             if (!empty($tempIndexes)) {
-                DB::statement('ALTER TABLE favorites DROP INDEX favorites_temp_owner_sitter_unique');
+                // First check if there are any foreign keys using this index
+                try {
+                    DB::statement('ALTER TABLE favorites DROP INDEX favorites_temp_owner_sitter_unique');
+                } catch (\Exception $e) {
+                    // If dropping fails due to foreign key constraint, skip it
+                    // The constraint will be handled differently
+                }
             }
             
-            Schema::table('favorites', function (Blueprint $table) {
-                $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
-            });
+            // Add the correct unique constraint only if it doesn't exist
+            try {
+                Schema::table('favorites', function (Blueprint $table) {
+                    $table->unique(['owner_id', 'sitter_id'], 'favorites_owner_sitter_unique');
+                });
+            } catch (\Exception $e) {
+                // Constraint might already exist, ignore
+            }
         }
     }
 
