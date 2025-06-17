@@ -198,20 +198,27 @@ class User extends Authenticatable implements FilamentUser
      */
     public function uploadAvatar(\Illuminate\Http\UploadedFile $file): void
     {
-        // Delete old files
-        $this->deleteOldAvatar();
-        
-        // Upload new files
-        $filePaths = $this->uploadFile(
-            $file,
-            'avatars',
-            'avatar_path',
-            'avatar_thumb_path',
-            200,
-            200
-        );
-        
-        $this->update($filePaths);
+        try {
+            // Delete old files
+            $this->deleteOldAvatar();
+            
+            // Simple file upload without thumbnail for now
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $directory = 'avatars/User-' . $this->id;
+            $path = $file->storeAs($directory, $filename, 'public');
+            
+            // Update database
+            $this->update([
+                'avatar_path' => $path,
+                'avatar_thumb_path' => $path // Use same file for now
+            ]);
+            
+            \Log::info('Avatar uploaded successfully for user ' . $this->id . ': ' . $path);
+            
+        } catch (\Exception $e) {
+            \Log::error('Avatar upload failed for user ' . $this->id . ': ' . $e->getMessage());
+            throw $e;
+        }
     }
     
     /**
