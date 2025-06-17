@@ -74,6 +74,7 @@ class ServiceRequestResource extends Resource
                         'pending' => 'Pending',
                         'accepted' => 'Accepted',
                         'rejected' => 'Rejected',
+                        'completed' => 'Completed',
                     ])
                     ->required()
                     ->default('pending'),
@@ -111,6 +112,7 @@ class ServiceRequestResource extends Resource
                         'warning' => 'pending',
                         'success' => 'accepted',
                         'danger' => 'rejected',
+                        'info' => 'completed',
                     ]),
                     
                 Tables\Columns\TextColumn::make('created_at')
@@ -124,6 +126,7 @@ class ServiceRequestResource extends Resource
                         'pending' => 'Pending',
                         'accepted' => 'Accepted',
                         'rejected' => 'Rejected',
+                        'completed' => 'Completed',
                     ]),
             ])
             ->actions([

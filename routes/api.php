@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('service-requests', ServiceRequestController::class);
     Route::put('service-requests/{id}/accept', [ServiceRequestController::class, 'accept']);
     Route::put('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
+    Route::put('service-requests/{id}/complete', [ServiceRequestController::class, 'complete']);
     
     // Favorites
     Route::apiResource('favorites', FavoriteController::class);

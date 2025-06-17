@@ -89,7 +89,7 @@ namespace App\Http\Controllers\Api;
  *     @OA\Property(property="date_from", type="string", format="date", example="2024-01-15"),
  *     @OA\Property(property="date_to", type="string", format="date", example="2024-01-20"),
  *     @OA\Property(property="message", type="string", example="Please take care of my dog while I'm away"),
- *     @OA\Property(property="status", type="string", enum={"pending", "accepted", "rejected"}, example="pending"),
+ *     @OA\Property(property="status", type="string", enum={"pending", "accepted", "rejected", "completed"}, example="pending"),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time"),
  *     @OA\Property(

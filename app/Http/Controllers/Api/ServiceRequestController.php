@@ -39,7 +39,7 @@ class ServiceRequestController extends BaseController
      *         required=false,
      *         @OA\Schema(
      *             type="string",
-     *             enum={"pending", "accepted", "rejected"}
+     *             enum={"pending", "accepted", "rejected", "completed"}
      *         )
      *     ),
      *     @OA\Response(
@@ -352,7 +352,7 @@ class ServiceRequestController extends BaseController
             'date_from' => 'sometimes|required|date|after_or_equal:today',
             'date_to' => 'sometimes|required|date|after:date_from',
             'message' => 'nullable|string|max:1000',
-            'status' => 'sometimes|required|in:pending,accepted,rejected',
+            'status' => 'sometimes|required|in:pending,accepted,rejected,completed',
         ]);
 
         if ($validator->fails()) {
@@ -554,6 +554,83 @@ class ServiceRequestController extends BaseController
 
         return $this->sendResponse($serviceRequest, 'Service request rejected successfully');
     }
+
+    /**
+     * @OA\Put(
+     *     path="/api/service-requests/{id}/complete",
+     *     operationId="completeServiceRequest",
+     *     tags={"Service Requests"},
+     *     summary="Complete service request",
+     *     description="Mark a service request as completed (owner or sitter action)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         description="Service request id",
+     *         required=true,
+     *         in="path",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Service request completed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Service request completed successfully"),
+     *             @OA\Property(property="data", ref="#/components/schemas/ServiceRequest")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request - Invalid status transition",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Only accepted requests can be completed")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized - Invalid or missing authentication token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Service request not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Service request not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
+     */
+    public function complete($id): JsonResponse
+    {
+        $serviceRequest = ServiceRequest::find($id);
+
+        if (is_null($serviceRequest)) {
+            return $this->sendError('Service request not found');
+        }
+
+        // Only accepted requests can be completed
+        if ($serviceRequest->status !== 'accepted') {
+            return $this->sendError('Only accepted requests can be completed', [], 400);
+        }
+
+        $serviceRequest->update(['status' => 'completed']);
+        $serviceRequest->load(['owner', 'sitter', 'pet']);
+
+        return $this->sendResponse($serviceRequest, 'Service request completed successfully');
+    }
 }
 
 /**
@@ -569,7 +646,7 @@ class ServiceRequestController extends BaseController
  *     @OA\Property(property="date_from", type="string", format="date", example="2024-01-15"),
  *     @OA\Property(property="date_to", type="string", format="date", example="2024-01-20"),
  *     @OA\Property(property="message", type="string", example="Please take care of my dog while I'm away"),
- *     @OA\Property(property="status", type="string", enum={"pending", "accepted", "rejected"}, example="pending"),
+ *     @OA\Property(property="status", type="string", enum={"pending", "accepted", "rejected", "completed"}, example="pending"),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time"),
  *     @OA\Property(
