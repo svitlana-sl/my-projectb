@@ -63,17 +63,13 @@ class UserResource extends Resource
                 Forms\Components\FileUpload::make('avatar_file')
                     ->label('Avatar')
                     ->image()
-                    ->directory('temp')
+                    ->directory('avatars')
                     ->disk('public')
-                    ->imageEditor()
-                    ->imageCropAspectRatio('1:1')
-                    ->imageResizeTargetWidth('400')
-                    ->imageResizeTargetHeight('400')
-                    ->maxSize(10240) // 10MB
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'])
+                    ->maxSize(2048) // 2MB
+                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
                     ->visibility('public')
-                    ->dehydrated(true) // Change to true so file data is passed to form handler
-                    ->helperText('Максимальний розмір: 10MB. Підтримувані формати: JPEG, PNG, GIF, WebP, AVIF'),
+                    ->dehydrated(true)
+                    ->helperText('Максимальний розмір: 2MB. Підтримувані формати: JPEG, PNG'),
                     
                 Forms\Components\TextInput::make('avatar_url')
                     ->label('Avatar URL (Alternative)')
