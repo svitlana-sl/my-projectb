@@ -194,6 +194,8 @@ trait HasFileUpload
      */
     public function handleFilamentUpload(string $tempFilePath, string $fileField, string $thumbField = null): bool
     {
+        $tempLocalPath = null; // Local variable instead of property
+        
         try {
             $disk = $this->getUploadDisk();
             
@@ -204,7 +206,7 @@ trait HasFileUpload
             }
             
             // Create UploadedFile from temp file
-            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk);
+            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk, $tempLocalPath);
             if (!$uploadedFile) {
                 return false;
             }
@@ -229,15 +231,20 @@ trait HasFileUpload
             Storage::disk($disk)->delete($tempFilePath);
             
             // Clean up local temp file if created
-            if (isset($this->tempLocalPath) && file_exists($this->tempLocalPath)) {
-                unlink($this->tempLocalPath);
-                unset($this->tempLocalPath);
+            if ($tempLocalPath && file_exists($tempLocalPath)) {
+                unlink($tempLocalPath);
             }
             
             return true;
             
         } catch (\Exception $e) {
             \Log::error("File upload failed: {$e->getMessage()}");
+            
+            // Clean up local temp file on error
+            if ($tempLocalPath && file_exists($tempLocalPath)) {
+                unlink($tempLocalPath);
+            }
+            
             return false;
         }
     }
@@ -245,7 +252,7 @@ trait HasFileUpload
     /**
      * Create UploadedFile from temp storage
      */
-    private function createUploadedFileFromTemp(string $tempFilePath, string $disk): ?UploadedFile
+    private function createUploadedFileFromTemp(string $tempFilePath, string $disk, &$tempLocalPath): ?UploadedFile
     {
         try {
             $originalName = basename($tempFilePath);
@@ -253,11 +260,11 @@ trait HasFileUpload
             if ($disk === 'do_spaces') {
                 // For cloud storage, download to temp file
                 $fileContent = Storage::disk($disk)->get($tempFilePath);
-                $this->tempLocalPath = sys_get_temp_dir() . '/' . $originalName;
-                file_put_contents($this->tempLocalPath, $fileContent);
+                $tempLocalPath = sys_get_temp_dir() . '/' . $originalName;
+                file_put_contents($tempLocalPath, $fileContent);
                 
                 return new UploadedFile(
-                    $this->tempLocalPath,
+                    $tempLocalPath,
                     $originalName,
                     Storage::disk($disk)->mimeType($tempFilePath),
                     null,
