@@ -61,16 +61,16 @@ class PetResource extends Resource
                     ->label('Pet Photo')
                     ->image()
                     ->directory('temp')
-                    ->disk('public')
+                    ->disk(config('image.storage.disk', 'public'))
                     ->imageEditor()
                     ->imageCropAspectRatio('1:1')
                     ->imageResizeTargetWidth('600')
                     ->imageResizeTargetHeight('600')
-                    ->maxSize(10240) // 10MB
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'])
+                    ->maxSize(config('image.validation.max_file_size') / 1024)
+                    ->acceptedFileTypes(config('image.validation.allowed_mime_types'))
                     ->visibility('public')
-                    ->dehydrated(true) // Change to true so file data is passed to form handler
-                    ->helperText('Максимальний розмір: 10MB. Підтримувані формати: JPEG, PNG, GIF, WebP, AVIF'),
+                    ->dehydrated(true)
+                    ->helperText('Максимальний розмір: ' . config('image.validation.max_file_size') / 1024 / 1024 . 'MB. Підтримувані формати: ' . implode(', ', config('image.validation.allowed_extensions'))),
                     
                 Forms\Components\TextInput::make('photo_url')
                     ->label('Photo URL (Alternative)')

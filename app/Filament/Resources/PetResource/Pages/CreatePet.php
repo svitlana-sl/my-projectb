@@ -31,11 +31,13 @@ class CreatePet extends CreateRecord
         // Handle photo file upload after pet creation
         if ($photoFile) {
             try {
+                $disk = config('image.storage.disk', 'public');
+                
                 // Get full path to uploaded file
-                $fullPath = Storage::disk('public')->path($photoFile);
+                $fullPath = Storage::disk($disk)->path($photoFile);
                 \Log::info('Looking for file at: ' . $fullPath);
                 
-                if (file_exists($fullPath)) {
+                if (Storage::disk($disk)->exists($photoFile)) {
                     \Log::info('File exists, processing upload');
                     
                     // Get original filename and extension
@@ -45,7 +47,7 @@ class CreatePet extends CreateRecord
                     $uploadedFile = new \Illuminate\Http\UploadedFile(
                         $fullPath,
                         $originalName,
-                        Storage::disk('public')->mimeType($photoFile),
+                        Storage::disk($disk)->mimeType($photoFile),
                         null,
                         true
                     );
@@ -55,7 +57,7 @@ class CreatePet extends CreateRecord
                     \Log::info('Photo upload completed');
                     
                     // Clean up temp file
-                    Storage::disk('public')->delete($photoFile);
+                    Storage::disk($disk)->delete($photoFile);
                     \Log::info('Temp file cleaned up');
                 } else {
                     \Log::error('File not found at: ' . $fullPath);

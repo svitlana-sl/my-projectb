@@ -64,12 +64,12 @@ class UserResource extends Resource
                     ->label('Avatar')
                     ->image()
                     ->directory('avatars')
-                    ->disk('public')
-                    ->maxSize(2048) // 2MB
-                    ->acceptedFileTypes(['image/jpeg', 'image/png'])
+                    ->disk(config('image.storage.disk', 'public'))
+                    ->maxSize(config('image.validation.max_file_size') / 1024)
+                    ->acceptedFileTypes(config('image.validation.allowed_mime_types'))
                     ->visibility('public')
                     ->dehydrated(true)
-                    ->helperText('Максимальний розмір: 2MB. Підтримувані формати: JPEG, PNG'),
+                    ->helperText('Максимальний розмір: ' . config('image.validation.max_file_size') / 1024 / 1024 . 'MB. Підтримувані формати: ' . implode(', ', config('image.validation.allowed_extensions'))),
                     
                 Forms\Components\TextInput::make('avatar_url')
                     ->label('Avatar URL (Alternative)')

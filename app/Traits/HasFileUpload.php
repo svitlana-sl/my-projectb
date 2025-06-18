@@ -10,6 +10,14 @@ use Illuminate\Support\Str;
 trait HasFileUpload
 {
     /**
+     * Get the storage disk for uploads
+     */
+    protected function getUploadDisk(): string
+    {
+        return config('image.storage.disk', config('filesystems.default', 'public'));
+    }
+
+    /**
      * Upload file and create thumbnail
      */
     public function uploadFile(
@@ -29,19 +37,22 @@ trait HasFileUpload
         // Create directory structure
         $fullDirectory = $directory . '/' . $this->getModelIdentifier();
         
+        $disk = $this->getUploadDisk();
+        
         // Store original file
-        $filePath = $file->storeAs($fullDirectory, $filename, 'public');
+        $filePath = $file->storeAs($fullDirectory, $filename, $disk);
         
         $result = [$fileField => $filePath];
         
         // Create thumbnail if requested
         if ($thumbField && $this->isImage($file)) {
             $thumbPath = $this->createThumbnail(
-                storage_path('app/public/' . $filePath),
+                $file,
                 $fullDirectory,
                 $filename,
                 $thumbWidth,
-                $thumbHeight
+                $thumbHeight,
+                $disk
             );
             $result[$thumbField] = $thumbPath;
         }
@@ -54,9 +65,11 @@ trait HasFileUpload
      */
     public function deleteFiles(array $filePaths): void
     {
+        $disk = $this->getUploadDisk();
+        
         foreach ($filePaths as $path) {
-            if ($path && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
+            if ($path && Storage::disk($disk)->exists($path)) {
+                Storage::disk($disk)->delete($path);
             }
         }
     }
@@ -70,7 +83,17 @@ trait HasFileUpload
             return $this->getDefaultImage();
         }
         
-        return Storage::disk('public')->url($path);
+        $disk = $this->getUploadDisk();
+        
+        // For DigitalOcean Spaces, use CDN if available
+        if ($disk === 'do_spaces' && config('image.digital_ocean.cdn_enabled', false)) {
+            $cdnEndpoint = config('image.digital_ocean.cdn_endpoint');
+            if ($cdnEndpoint) {
+                return rtrim($cdnEndpoint, '/') . '/' . ltrim($path, '/');
+            }
+        }
+        
+        return Storage::disk($disk)->url($path);
     }
     
     /**
@@ -119,43 +142,48 @@ trait HasFileUpload
     }
     
     /**
-     * Create thumbnail
+     * Create thumbnail (optimized for cloud storage)
      */
     protected function createThumbnail(
-        string $originalPath, 
+        UploadedFile $originalFile,
         string $directory, 
         string $filename, 
         int $width, 
-        int $height
+        int $height,
+        string $disk
     ): string {
         $thumbFilename = 'thumb_' . $filename;
         $thumbPath = $directory . '/' . $thumbFilename;
-        $fullThumbPath = storage_path('app/public/' . $thumbPath);
         
-        // Create directory if not exists
-        $thumbDir = dirname($fullThumbPath);
-        if (!file_exists($thumbDir)) {
-            mkdir($thumbDir, 0755, true);
-        }
-        
-        // Create and save thumbnail
         try {
-            $image = Image::read($originalPath);
+            // Read the original file
+            $image = Image::read($originalFile->path());
             $image->cover($width, $height);
             
             // For AVIF files, save as WebP for better browser compatibility
             if (str_ends_with(strtolower($filename), '.avif')) {
                 $thumbFilename = str_replace('.avif', '.webp', $thumbFilename);
                 $thumbPath = $directory . '/' . $thumbFilename;
-                $fullThumbPath = storage_path('app/public/' . $thumbPath);
                 $image->toWebp(85);
             }
             
-            $image->save($fullThumbPath);
+            // Save to temporary location first
+            $tempPath = sys_get_temp_dir() . '/' . $thumbFilename;
+            $image->save($tempPath);
+            
+            // Upload to storage
+            $content = file_get_contents($tempPath);
+            Storage::disk($disk)->put($thumbPath, $content);
+            
+            // Clean up temp file
+            unlink($tempPath);
+            
         } catch (\Exception $e) {
             \Log::error('Thumbnail creation failed: ' . $e->getMessage());
-            // Create a copy of original as fallback
-            copy($originalPath, $fullThumbPath);
+            
+            // Fallback: use original file as thumbnail by copying it
+            $originalContent = file_get_contents($originalFile->path());
+            Storage::disk($disk)->put($thumbPath, $originalContent);
         }
         
         return $thumbPath;

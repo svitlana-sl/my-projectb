@@ -202,10 +202,13 @@ class User extends Authenticatable implements FilamentUser
             // Delete old files
             $this->deleteOldAvatar();
             
+            // Use dynamic disk
+            $disk = config('image.storage.disk', 'public');
+            
             // Simple file upload without thumbnail for now
             $filename = time() . '_' . $file->getClientOriginalName();
             $directory = 'avatars/User-' . $this->id;
-            $path = $file->storeAs($directory, $filename, 'public');
+            $path = $file->storeAs($directory, $filename, $disk);
             
             // Update database
             $this->update([
