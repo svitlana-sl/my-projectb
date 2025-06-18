@@ -201,6 +201,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->getAvatarUrlAttribute();
     }
     
+    /**
+     * Get the URL to the user's profile photo (Jetstream compatibility)
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        return $this->getAvatarUrlAttribute();
+    }
+    
 
     
     /**

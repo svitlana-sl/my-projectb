@@ -39,8 +39,11 @@ trait HasFileUpload
         
         $disk = $this->getUploadDisk();
         
-        // Store original file
-        $filePath = $file->storeAs($fullDirectory, $filename, $disk);
+        // Store original file with public visibility
+        $filePath = $file->storeAs($fullDirectory, $filename, [
+            'disk' => $disk,
+            'visibility' => 'public'
+        ]);
         
         $result = [$fileField => $filePath];
         
@@ -85,7 +88,7 @@ trait HasFileUpload
         
         $disk = $this->getUploadDisk();
         
-        // For DigitalOcean Spaces, use CDN if available
+        // Use CDN for DigitalOcean Spaces if enabled
         if ($disk === 'do_spaces' && config('image.digital_ocean.cdn_enabled', false)) {
             $cdnEndpoint = config('image.digital_ocean.cdn_endpoint');
             if ($cdnEndpoint) {
@@ -142,48 +145,33 @@ trait HasFileUpload
     }
     
     /**
-     * Create thumbnail (optimized for cloud storage)
+     * Create thumbnail
      */
-    protected function createThumbnail(
-        UploadedFile $originalFile,
-        string $directory, 
-        string $filename, 
-        int $width, 
-        int $height,
-        string $disk
-    ): string {
+    protected function createThumbnail(UploadedFile $originalFile, string $directory, string $filename, int $width, int $height, string $disk): string
+    {
         $thumbFilename = 'thumb_' . $filename;
         $thumbPath = $directory . '/' . $thumbFilename;
         
         try {
-            // Read the original file
-            $image = Image::read($originalFile->path());
-            $image->cover($width, $height);
+            $image = Image::read($originalFile->path())->cover($width, $height);
             
-            // For AVIF files, save as WebP for better browser compatibility
+            // Convert AVIF to WebP for better compatibility
             if (str_ends_with(strtolower($filename), '.avif')) {
                 $thumbFilename = str_replace('.avif', '.webp', $thumbFilename);
                 $thumbPath = $directory . '/' . $thumbFilename;
                 $image->toWebp(85);
             }
             
-            // Save to temporary location first
             $tempPath = sys_get_temp_dir() . '/' . $thumbFilename;
             $image->save($tempPath);
             
-            // Upload to storage
-            $content = file_get_contents($tempPath);
-            Storage::disk($disk)->put($thumbPath, $content);
-            
-            // Clean up temp file
+            Storage::disk($disk)->put($thumbPath, file_get_contents($tempPath), 'public');
             unlink($tempPath);
             
         } catch (\Exception $e) {
             \Log::error('Thumbnail creation failed: ' . $e->getMessage());
-            
-            // Fallback: use original file as thumbnail by copying it
-            $originalContent = file_get_contents($originalFile->path());
-            Storage::disk($disk)->put($thumbPath, $originalContent);
+            // Fallback: copy original file
+            Storage::disk($disk)->put($thumbPath, file_get_contents($originalFile->path()), 'public');
         }
         
         return $thumbPath;
@@ -194,57 +182,29 @@ trait HasFileUpload
      */
     public function handleFilamentUpload(string $tempFilePath, string $fileField, string $thumbField = null): bool
     {
-        $tempLocalPath = null; // Local variable instead of property
-        
         try {
             $disk = $this->getUploadDisk();
             
-            // Check if temp file exists
             if (!Storage::disk($disk)->exists($tempFilePath)) {
-                \Log::warning("Temp file not found: {$tempFilePath}");
                 return false;
             }
             
-            // Create UploadedFile from temp file
-            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk, $tempLocalPath);
+            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk);
             if (!$uploadedFile) {
                 return false;
             }
             
-            // Determine upload directory and thumbnail size based on field
             [$directory, $thumbWidth, $thumbHeight] = $this->getUploadConfig($fileField);
             
-            // Upload file
-            $filePaths = $this->uploadFile(
-                $uploadedFile,
-                $directory,
-                $fileField,
-                $thumbField,
-                $thumbWidth,
-                $thumbHeight
-            );
-            
-            // Update model
+            $filePaths = $this->uploadFile($uploadedFile, $directory, $fileField, $thumbField, $thumbWidth, $thumbHeight);
             $this->update($filePaths);
             
-            // Clean up temp file
             Storage::disk($disk)->delete($tempFilePath);
-            
-            // Clean up local temp file if created
-            if ($tempLocalPath && file_exists($tempLocalPath)) {
-                unlink($tempLocalPath);
-            }
             
             return true;
             
         } catch (\Exception $e) {
             \Log::error("File upload failed: {$e->getMessage()}");
-            
-            // Clean up local temp file on error
-            if ($tempLocalPath && file_exists($tempLocalPath)) {
-                unlink($tempLocalPath);
-            }
-            
             return false;
         }
     }
@@ -252,35 +212,23 @@ trait HasFileUpload
     /**
      * Create UploadedFile from temp storage
      */
-    private function createUploadedFileFromTemp(string $tempFilePath, string $disk, &$tempLocalPath): ?UploadedFile
+    private function createUploadedFileFromTemp(string $tempFilePath, string $disk): ?UploadedFile
     {
         try {
             $originalName = basename($tempFilePath);
+            $mimeType = Storage::disk($disk)->mimeType($tempFilePath);
             
             if ($disk === 'do_spaces') {
-                // For cloud storage, download to temp file
                 $fileContent = Storage::disk($disk)->get($tempFilePath);
                 $tempLocalPath = sys_get_temp_dir() . '/' . $originalName;
                 file_put_contents($tempLocalPath, $fileContent);
                 
-                return new UploadedFile(
-                    $tempLocalPath,
-                    $originalName,
-                    Storage::disk($disk)->mimeType($tempFilePath),
-                    null,
-                    true
-                );
-            } else {
-                // For local storage
-                $fullPath = Storage::disk($disk)->path($tempFilePath);
-                return new UploadedFile(
-                    $fullPath,
-                    $originalName,
-                    Storage::disk($disk)->mimeType($tempFilePath),
-                    null,
-                    true
-                );
+                return new UploadedFile($tempLocalPath, $originalName, $mimeType, null, true);
             }
+            
+            $fullPath = Storage::disk($disk)->path($tempFilePath);
+            return new UploadedFile($fullPath, $originalName, $mimeType, null, true);
+            
         } catch (\Exception $e) {
             \Log::error("Failed to create UploadedFile: {$e->getMessage()}");
             return null;
@@ -307,6 +255,14 @@ trait HasFileUpload
      */
     public function getDefaultImage(): string
     {
+        $modelType = class_basename($this);
+        
+        if ($modelType === 'User') {
+            return asset('images/default-avatar.svg');
+        } elseif ($modelType === 'Pet') {
+            return asset('images/default-pet.svg');
+        }
+        
         return asset('images/default-avatar.svg');
     }
 } 
