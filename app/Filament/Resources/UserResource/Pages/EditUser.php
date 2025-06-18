@@ -20,16 +20,15 @@ class EditUser extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file path directly
+        // Handle avatar file upload using simplified method
         if (isset($data['avatar_file']) && $data['avatar_file']) {
-            $data['avatar_path'] = $data['avatar_file'];
-            $data['avatar_thumb_path'] = $data['avatar_file'];
+            $record->handleFilamentUpload($data['avatar_file'], 'avatar_path', 'avatar_thumb_path');
         }
         
         // Remove avatar_file from data as it's not a database field
         unset($data['avatar_file']);
         
-        // Update all fields
+        // Update other fields
         $record->update($data);
         
         return $record;

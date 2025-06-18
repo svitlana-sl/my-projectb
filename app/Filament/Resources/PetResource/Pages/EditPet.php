@@ -20,35 +20,9 @@ class EditPet extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle photo file upload
+        // Handle photo file upload using simplified method
         if (isset($data['photo_file']) && $data['photo_file']) {
-            try {
-                // Get full path to uploaded file
-                $fullPath = Storage::disk('public')->path($data['photo_file']);
-                
-                if (file_exists($fullPath)) {
-                    // Get original filename
-                    $originalName = basename($data['photo_file']);
-                    
-                    // Create UploadedFile instance
-                    $uploadedFile = new \Illuminate\Http\UploadedFile(
-                        $fullPath,
-                        $originalName,
-                        Storage::disk('public')->mimeType($data['photo_file']),
-                        null,
-                        true
-                    );
-                    
-                    // Process the file upload
-                    $record->uploadPhoto($uploadedFile);
-                    
-                    // Clean up temp file
-                    Storage::disk('public')->delete($data['photo_file']);
-                }
-            } catch (\Exception $e) {
-                // Log error but don't fail the update
-                \Log::error('Pet photo update failed: ' . $e->getMessage());
-            }
+            $record->handleFilamentUpload($data['photo_file'], 'photo_path', 'photo_thumb_path');
         }
         
         // Remove photo_file from data as it's not a database field

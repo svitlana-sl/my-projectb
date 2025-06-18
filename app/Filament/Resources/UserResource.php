@@ -111,9 +111,10 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar_url')
+                Tables\Columns\ImageColumn::make('avatar_display')
                     ->label('Avatar')
                     ->circular()
+                    ->getStateUsing(fn ($record) => $record->getDisplayAvatarUrl())
                     ->defaultImageUrl(fn ($record) => $record->getDefaultImage()),
                     
                 Tables\Columns\TextColumn::make('name')

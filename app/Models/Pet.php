@@ -84,26 +84,7 @@ class Pet extends Model
         return $this->getPhotoUrlAttribute();
     }
     
-    /**
-     * Handle photo upload
-     */
-    public function uploadPhoto(\Illuminate\Http\UploadedFile $file): void
-    {
-        // Delete old files
-        $this->deleteOldPhoto();
-        
-        // Upload new files
-        $filePaths = $this->uploadFile(
-            $file,
-            'pets',
-            'photo_path',
-            'photo_thumb_path',
-            400,
-            400
-        );
-        
-        $this->update($filePaths);
-    }
+
     
     /**
      * Delete old photo files

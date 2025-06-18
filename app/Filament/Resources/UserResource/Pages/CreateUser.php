@@ -13,19 +13,16 @@ class CreateUser extends CreateRecord
     
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file path directly
+        // Handle avatar file upload using simplified method
         $avatarFile = $data['avatar_file'] ?? null;
         unset($data['avatar_file']);
         
         // Create the user first
         $record = static::getModel()::create($data);
         
-        // Simple avatar path assignment
+        // Handle avatar upload after user creation
         if ($avatarFile) {
-            $record->update([
-                'avatar_path' => $avatarFile,
-                'avatar_thumb_path' => $avatarFile
-            ]);
+            $record->handleFilamentUpload($avatarFile, 'avatar_path', 'avatar_thumb_path');
         }
         
         return $record;

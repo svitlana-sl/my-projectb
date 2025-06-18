@@ -190,6 +190,112 @@ trait HasFileUpload
     }
     
     /**
+     * Handle Filament file upload (simplified method)
+     */
+    public function handleFilamentUpload(string $tempFilePath, string $fileField, string $thumbField = null): bool
+    {
+        try {
+            $disk = $this->getUploadDisk();
+            
+            // Check if temp file exists
+            if (!Storage::disk($disk)->exists($tempFilePath)) {
+                \Log::warning("Temp file not found: {$tempFilePath}");
+                return false;
+            }
+            
+            // Create UploadedFile from temp file
+            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk);
+            if (!$uploadedFile) {
+                return false;
+            }
+            
+            // Determine upload directory and thumbnail size based on field
+            [$directory, $thumbWidth, $thumbHeight] = $this->getUploadConfig($fileField);
+            
+            // Upload file
+            $filePaths = $this->uploadFile(
+                $uploadedFile,
+                $directory,
+                $fileField,
+                $thumbField,
+                $thumbWidth,
+                $thumbHeight
+            );
+            
+            // Update model
+            $this->update($filePaths);
+            
+            // Clean up temp file
+            Storage::disk($disk)->delete($tempFilePath);
+            
+            // Clean up local temp file if created
+            if (isset($this->tempLocalPath) && file_exists($this->tempLocalPath)) {
+                unlink($this->tempLocalPath);
+                unset($this->tempLocalPath);
+            }
+            
+            return true;
+            
+        } catch (\Exception $e) {
+            \Log::error("File upload failed: {$e->getMessage()}");
+            return false;
+        }
+    }
+    
+    /**
+     * Create UploadedFile from temp storage
+     */
+    private function createUploadedFileFromTemp(string $tempFilePath, string $disk): ?UploadedFile
+    {
+        try {
+            $originalName = basename($tempFilePath);
+            
+            if ($disk === 'do_spaces') {
+                // For cloud storage, download to temp file
+                $fileContent = Storage::disk($disk)->get($tempFilePath);
+                $this->tempLocalPath = sys_get_temp_dir() . '/' . $originalName;
+                file_put_contents($this->tempLocalPath, $fileContent);
+                
+                return new UploadedFile(
+                    $this->tempLocalPath,
+                    $originalName,
+                    Storage::disk($disk)->mimeType($tempFilePath),
+                    null,
+                    true
+                );
+            } else {
+                // For local storage
+                $fullPath = Storage::disk($disk)->path($tempFilePath);
+                return new UploadedFile(
+                    $fullPath,
+                    $originalName,
+                    Storage::disk($disk)->mimeType($tempFilePath),
+                    null,
+                    true
+                );
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to create UploadedFile: {$e->getMessage()}");
+            return null;
+        }
+    }
+    
+    /**
+     * Get upload configuration based on field type
+     */
+    private function getUploadConfig(string $fileField): array
+    {
+        switch ($fileField) {
+            case 'avatar_path':
+                return ['avatars', 200, 200];
+            case 'photo_path':
+                return ['pets', 400, 400];
+            default:
+                return ['uploads', 300, 300];
+        }
+    }
+    
+    /**
      * Get default image URL
      */
     public function getDefaultImage(): string
