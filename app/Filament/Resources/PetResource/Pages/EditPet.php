@@ -22,15 +22,18 @@ class EditPet extends EditRecord
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
         // Handle photo file upload if present and different from existing
-        if (isset($data['photo_file']) && $data['photo_file']) {
+        if (isset($data['photo_file']) && !empty($data['photo_file'])) {
+            // Get first file from array if it's an array
+            $photoFile = is_array($data['photo_file']) ? reset($data['photo_file']) : $data['photo_file'];
+            
             // Check if this is a new upload (not the same as current photo_path)
-            if ($data['photo_file'] !== $record->photo_path) {
+            if ($photoFile && $photoFile !== $record->photo_path) {
                 try {
                     // Delete old photo files only if uploading new one
                     $record->deleteOldPhoto();
                     
                     // Convert Filament temp path to UploadedFile
-                    $uploadedFile = $this->createUploadedFileFromFilament($data['photo_file']);
+                    $uploadedFile = $this->createUploadedFileFromFilament($photoFile);
                     
                     if ($uploadedFile) {
                         // Upload new photo

@@ -69,6 +69,12 @@ class PetResource extends Resource
                     ->maxSize(config('image.validation.max_file_size') / 1024)
                     ->acceptedFileTypes(config('image.validation.allowed_mime_types'))
                     ->visibility('public')
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        // Show existing photo when editing
+                        if ($record && $record->photo_path && !$state) {
+                            $component->state([$record->photo_path]);
+                        }
+                    })
                     ->helperText('Максимальний розмір: ' . config('image.validation.max_file_size') / 1024 / 1024 . 'MB. Підтримувані формати: ' . implode(', ', config('image.validation.allowed_extensions'))),
                     
                 Forms\Components\TextInput::make('photo_url')
@@ -76,14 +82,7 @@ class PetResource extends Resource
                     ->url()
                     ->maxLength(255)
                     ->helperText('You can either upload a file above or provide a URL here'),
-            ])
-            ->mutateFormDataUsing(function (array $data): array {
-                // Show existing photo in FileUpload when editing
-                if (isset($data['photo_path']) && $data['photo_path'] && !isset($data['photo_file'])) {
-                    $data['photo_file'] = $data['photo_path'];
-                }
-                return $data;
-            });
+            ]);
     }
 
     public static function table(Table $table): Table

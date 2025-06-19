@@ -22,15 +22,18 @@ class EditUser extends EditRecord
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
         // Handle avatar file upload if present and different from existing
-        if (isset($data['avatar_file']) && $data['avatar_file']) {
+        if (isset($data['avatar_file']) && !empty($data['avatar_file'])) {
+            // Get first file from array if it's an array
+            $avatarFile = is_array($data['avatar_file']) ? reset($data['avatar_file']) : $data['avatar_file'];
+            
             // Check if this is a new upload (not the same as current avatar_path)
-            if ($data['avatar_file'] !== $record->avatar_path) {
+            if ($avatarFile && $avatarFile !== $record->avatar_path) {
                 try {
                     // Delete old avatar files only if uploading new one
                     $record->deleteOldAvatar();
                     
                     // Convert Filament temp path to UploadedFile
-                    $uploadedFile = $this->createUploadedFileFromFilament($data['avatar_file']);
+                    $uploadedFile = $this->createUploadedFileFromFilament($avatarFile);
                     
                     if ($uploadedFile) {
                         // Upload new avatar
