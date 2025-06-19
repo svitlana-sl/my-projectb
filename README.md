@@ -1,125 +1,204 @@
-# 📚 My Project
+# 🐾 Pet Care Platform
 
-> A modern Laravel 12 project with Jetstream (Livewire), Vite, DDEV, and SQLite.
+Laravel-based platform for connecting pet owners with reliable pet sitters, featuring comprehensive user management, pet profiles, and service request handling.
 
----
+## 🏗️ Architecture
 
-## 🚀 Features
+### Backend
+- **Laravel 11** with Filament Admin Panel
+- **MySQL** database with optimized relationships
+- **DigitalOcean Spaces** for file storage with CDN support
+- **Sanctum** for API authentication
+- **Swagger** for API documentation
 
-- Laravel 12 Framework
-- Laravel Jetstream + Livewire stack
-- Authentication (Login, Register, Password Reset)
-- Two-Factor Authentication (2FA)
-- Sanctum API Authentication
-- Admin panel (coming soon 🚧)
-- SQLite database for easy local development
-- DDEV integration for local Docker-based environment
-- Vite for frontend asset bundling
+## 🚀 Key Features
 
----
+### User Management
+- Multi-role system (Owner, Sitter, Both, Admin)
+- Profile management with avatar uploads
+- Location-based services
+- Jetstream authentication
+
+### Pet Management
+- Comprehensive pet profiles with photos
+- Breed, age, weight tracking
+- Photo galleries with automatic thumbnails
+
+### Service Requests
+- Booking system for pet sitting services
+- Status tracking (Pending, Accepted, Rejected, Completed)
+- Date range validation
+
+### **📁 Simplified File Upload System (Variant 2)**
+
+#### ✨ Key Advantages:
+- **🔄 Clean Architecture**: Uses existing API endpoints
+- **🛠️ Minimal Code**: No duplicate functionality
+- **🔒 Consistent Security**: Same validation as Filament admin
+- **📁 DigitalOcean Spaces**: Compatible with existing file structure
+- **⚡ Easy Maintenance**: Single endpoint per resource
+
+#### 🏗️ Implementation Details:
+
+**Backend Integration:**
+```php
+// Enhanced existing endpoints to accept file uploads
+PUT /api/users/{id}    // + avatar_file field
+PUT /api/pets/{id}     // + photo_file field
+
+// Uses same validation and storage logic as Filament
+// Automatic thumbnail generation
+// Old file cleanup on update
+```
+
+**Key Technical Features:**
+- **Method Spoofing**: POST + `_method=PUT` for multipart compatibility
+- **Unified Validation**: Single `getFileValidationRules()` method
+- **Smart Thumbnails**: Automatic resize with Intervention Image
+- **CDN Support**: DigitalOcean Spaces with optional CDN
+- **Error Handling**: Comprehensive error catching and logging
 
 ## 🛠️ Installation
 
-Clone the repository:
+### Prerequisites
+- PHP 8.2+
+- Composer
+- Node.js 18+ (for asset compilation)
+- MySQL 8.0+
 
+### Backend Setup
 ```bash
-git clone https://github.com/svitlana-sl/my-projectb.git
-cd my-projectb
-```
-
-Install PHP dependencies:
-
-```bash
+# Clone and install
+git clone <repository>
+cd my-project
 composer install
-```
 
-Install NPM dependencies and build assets:
+# Environment setup
+cp .env.example .env
+php artisan key:generate
 
-```bash
+# Database setup
+php artisan migrate
+php artisan db:seed
+
+# Storage setup
+php artisan storage:link
+
+# Compile assets
 npm install
 npm run build
+
+# Start development server
+php artisan serve
 ```
 
-Create `.env` file:
+### DigitalOcean Spaces Configuration
+```bash
+# Add to .env
+FILESYSTEM_DISK=do_spaces
+DO_SPACES_KEY=your_access_key
+DO_SPACES_SECRET=your_secret_key
+DO_SPACES_ENDPOINT=https://nyc3.digitaloceanspaces.com
+DO_SPACES_REGION=nyc3
+DO_SPACES_BUCKET=your_bucket_name
+```
+
+## 📖 API Documentation
+
+### File Upload Endpoints
+
+#### Upload User Avatar
+```http
+POST /api/users/{id}
+Content-Type: multipart/form-data
+
+{
+  "_method": "PUT",
+  "avatar_file": <file>,
+  "name": "Updated Name"  // optional other fields
+}
+```
+
+#### Upload Pet Photo
+```http
+POST /api/pets/{id}
+Content-Type: multipart/form-data
+
+{
+  "_method": "PUT", 
+  "photo_file": <file>,
+  "name": "Updated Pet Name"  // optional other fields
+}
+```
+
+### Validation Rules
+- **File Types**: JPEG, PNG, GIF, WebP, AVIF
+- **Max Size**: 10MB (configurable)
+- **Thumbnails**: Automatic generation (200x200 for avatars, 400x400 for pets)
+
+## 🧪 Testing
 
 ```bash
-cp .env.example .env
+# Backend tests
+php artisan test
+
+# Test upload system
+php artisan system:test-upload
+
+# Fix file permissions (DigitalOcean Spaces)
+php artisan storage:fix-permissions
 ```
 
-Generate application key:
+## 🔧 Maintenance
 
+### File Cleanup
 ```bash
-ddev artisan key:generate
+# Clean orphaned files
+php artisan storage:clean-orphan-files
+
+# Clean temporary files
+php artisan storage:clean-temp-files --days=1
 ```
 
-Run migrations:
+### Performance
+- **CDN Integration**: DigitalOcean Spaces CDN for global file delivery
+- **Optimized Thumbnails**: WebP conversion for AVIF files
+- **Database Indexing**: Optimized queries for file relationships
 
-```bash
-ddev artisan migrate
-```
+## 🎯 Best Practices
 
-Start local development server (with DDEV):
+### Security
+- File validation on both frontend and backend
+- MIME type verification
+- Size limitations
+- XSS protection for file URLs
 
-```bash
-ddev start
-ddev launch
-```
+### Performance
+- Lazy loading for images
+- Progressive enhancement
+- Error boundary components
+- Optimistic UI updates
+
+### Maintenance
+- Regular file cleanup
+- Monitoring storage usage
+- Performance logging
+- Error tracking
+
+## 📋 Development Notes
+
+### Code Quality
+- **DRY Principles**: Shared logic and reusable components
+- **SOLID Architecture**: Trait-based file handling
+- **Error Handling**: Comprehensive exception catching
+- **Configuration**: Environment-based settings
+
+### Deployment
+- Environment-specific configurations
+- Asset optimization
+- File storage migration tools
+- Performance monitoring
 
 ---
 
-## 📂 Project Structure
-
-```
-├── app/              # Application code (Controllers, Models, etc.)
-├── database/         # Migrations, seeders, factories
-├── public/           # Public-facing assets (index.php)
-├── resources/        # Blade templates, JS, CSS
-├── routes/           # Web and API route definitions
-├── storage/          # Compiled files, logs
-├── tests/            # Unit and Feature tests
-└── vite.config.js    # Vite configuration
-```
-
----
-
-## 📋 API Documentation
-
-The API will be documented using Swagger (OpenAPI).
-
-Endpoints:
-
-- `GET /api/products` — List all products
-
-Full documentation will be available at:
-
-```bash
-https://my-project.ddev.site:33001/api/documentation
-```
-
-(Coming soon 🚧)
-
----
-
-## 🧑‍💻 Author
-
-Developed with ❤️ by [Svitlana](https://github.com/svitlana-sl).
-
----
-
-## 🏁 TODO
-
-- [x] Initial project setup
-- [x] Jetstream authentication
-- [ ] Admin panel CRUD (Products)
-- [ ] API for frontend (Next.js / React)
-- [ ] Frontend project (external)
-- [ ] Swagger API documentation
-- [ ] Admin dashboard UI polishing
-
----
-
-## 🔒 License
-
-This project is open-sourced under the [MIT license](https://opensource.org/licenses/MIT).
-
----
+Built with ❤️ for pet owners and sitters everywhere! 🐕🐱
