@@ -21,32 +21,34 @@ class EditUser extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file upload if present
+        // Handle avatar file upload if present and different from current
         if (isset($data['avatar_file']) && $data['avatar_file']) {
-            try {
-                // Delete old avatar files
-                $record->deleteOldAvatar();
-                
-                // Convert Filament temp path to UploadedFile
-                $uploadedFile = $this->createUploadedFileFromFilament($data['avatar_file']);
-                
-                if ($uploadedFile) {
-                    // Upload new avatar
-                    [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('avatar_path');
-                    $filePaths = $record->uploadFile(
-                        $uploadedFile,
-                        $directory,
-                        'avatar_path',
-                        'avatar_thumb_path',
-                        $thumbWidth,
-                        $thumbHeight
-                    );
+            if ($this->isNewFileUpload($data['avatar_file'], $record->avatar_path)) {
+                try {
+                    // Delete old avatar files
+                    $record->deleteOldAvatar();
                     
-                    // Add file paths to data
-                    $data = array_merge($data, $filePaths);
+                    // Convert Filament temp path to UploadedFile
+                    $uploadedFile = $this->createUploadedFileFromFilament($data['avatar_file']);
+                    
+                    if ($uploadedFile) {
+                        // Upload new avatar
+                        [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('avatar_path');
+                        $filePaths = $record->uploadFile(
+                            $uploadedFile,
+                            $directory,
+                            'avatar_path',
+                            'avatar_thumb_path',
+                            $thumbWidth,
+                            $thumbHeight
+                        );
+                        
+                        // Add file paths to data
+                        $data = array_merge($data, $filePaths);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error("Avatar upload failed: {$e->getMessage()}");
                 }
-            } catch (\Exception $e) {
-                \Log::error("Avatar upload failed: {$e->getMessage()}");
             }
         }
         
@@ -57,6 +59,14 @@ class EditUser extends EditRecord
         $record->update($data);
         
         return $record;
+    }
+    
+    /**
+     * Check if the uploaded file is new (not existing path)
+     */
+    private function isNewFileUpload(string $uploadedFile, ?string $existingPath): bool
+    {
+        return !str_starts_with($uploadedFile, $existingPath ?? '');
     }
     
     /**

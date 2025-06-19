@@ -21,32 +21,34 @@ class EditPet extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle photo file upload if present
+        // Handle photo file upload if present and different from current
         if (isset($data['photo_file']) && $data['photo_file']) {
-            try {
-                // Delete old photo files
-                $record->deleteOldPhoto();
-                
-                // Convert Filament temp path to UploadedFile
-                $uploadedFile = $this->createUploadedFileFromFilament($data['photo_file']);
-                
-                if ($uploadedFile) {
-                    // Upload new photo
-                    [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('photo_path');
-                    $filePaths = $record->uploadFile(
-                        $uploadedFile,
-                        $directory,
-                        'photo_path',
-                        'photo_thumb_path',
-                        $thumbWidth,
-                        $thumbHeight
-                    );
+            if ($this->isNewFileUpload($data['photo_file'], $record->photo_path)) {
+                try {
+                    // Delete old photo files
+                    $record->deleteOldPhoto();
                     
-                    // Add file paths to data
-                    $data = array_merge($data, $filePaths);
+                    // Convert Filament temp path to UploadedFile
+                    $uploadedFile = $this->createUploadedFileFromFilament($data['photo_file']);
+                    
+                    if ($uploadedFile) {
+                        // Upload new photo
+                        [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('photo_path');
+                        $filePaths = $record->uploadFile(
+                            $uploadedFile,
+                            $directory,
+                            'photo_path',
+                            'photo_thumb_path',
+                            $thumbWidth,
+                            $thumbHeight
+                        );
+                        
+                        // Add file paths to data
+                        $data = array_merge($data, $filePaths);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error("Photo upload failed: {$e->getMessage()}");
                 }
-            } catch (\Exception $e) {
-                \Log::error("Photo upload failed: {$e->getMessage()}");
             }
         }
         
@@ -57,6 +59,14 @@ class EditPet extends EditRecord
         $record->update($data);
         
         return $record;
+    }
+    
+    /**
+     * Check if the uploaded file is new (not existing path)
+     */
+    private function isNewFileUpload(string $uploadedFile, ?string $existingPath): bool
+    {
+        return !str_starts_with($uploadedFile, $existingPath ?? '');
     }
     
     /**

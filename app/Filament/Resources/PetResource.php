@@ -70,6 +70,18 @@ class PetResource extends Resource
                     ->acceptedFileTypes(config('image.validation.allowed_mime_types'))
                     ->visibility('public')
                     ->dehydrated(true)
+                    ->getStateUsing(function ($record) {
+                        // Show existing photo if editing
+                        if ($record && $record->photo_path) {
+                            return $record->photo_path;
+                        }
+                        return null;
+                    })
+                    ->deleteUploadedFileUsing(function ($file) {
+                        // Don't delete the file when removing from form
+                        // File cleanup is handled in the model
+                        return true;
+                    })
                     ->helperText('Максимальний розмір: ' . config('image.validation.max_file_size') / 1024 / 1024 . 'MB. Підтримувані формати: ' . implode(', ', config('image.validation.allowed_extensions'))),
                     
                 Forms\Components\TextInput::make('photo_url')
