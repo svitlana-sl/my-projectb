@@ -8,6 +8,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// CORS-enabled image serving route for development
+Route::get('/images/{filename}', function ($filename) {
+    $path = public_path('images/' . $filename);
+    
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    
+    return response()->file($path);
+})->middleware(config('app.env') !== 'production' ? ['cors'] : []);
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
