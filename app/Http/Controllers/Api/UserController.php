@@ -361,7 +361,8 @@ class UserController extends BaseController
             return $this->sendError('User not found');
         }
 
-        $validator = Validator::make($request->all(), [
+        // Build validation rules array
+        $rules = [
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'sometimes|required|string|min:8',
@@ -373,7 +374,14 @@ class UserController extends BaseController
             'country' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
-        ]);
+        ];
+
+        // Add file validation if avatar_file is present
+        if ($request->hasFile('avatar_file')) {
+            $rules['avatar_file'] = $user->getFileValidationRules();
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->sendValidationError($validator->errors());
@@ -381,9 +389,40 @@ class UserController extends BaseController
 
         $input = $request->all();
         
+        // Handle password hashing
         if (isset($input['password'])) {
             $input['password'] = Hash::make($input['password']);
         }
+
+        // Handle file upload if present
+        if ($request->hasFile('avatar_file')) {
+            try {
+                // Delete old avatar files
+                $user->deleteOldAvatar();
+
+                // Upload new avatar using simplified method
+                $file = $request->file('avatar_file');
+                [$directory, $thumbWidth, $thumbHeight] = $user->getUploadConfig('avatar_path');
+                
+                $filePaths = $user->uploadFile(
+                    $file,
+                    $directory,
+                    'avatar_path',
+                    'avatar_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+
+                // Add file paths to input for update
+                $input = array_merge($input, $filePaths);
+                
+            } catch (\Exception $e) {
+                return $this->sendError('File upload failed: ' . $e->getMessage(), [], 500);
+            }
+        }
+
+        // Remove avatar_file from input as it's not a database field
+        unset($input['avatar_file']);
 
         $user->update($input);
 
@@ -447,6 +486,8 @@ class UserController extends BaseController
 
         return $this->sendResponse([], 'User deleted successfully');
     }
+
+
 }
 
 /**

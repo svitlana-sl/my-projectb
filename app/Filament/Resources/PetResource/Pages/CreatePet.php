@@ -5,7 +5,6 @@ namespace App\Filament\Resources\PetResource\Pages;
 use App\Filament\Resources\PetResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Storage;
 
 class CreatePet extends CreateRecord
 {
@@ -13,7 +12,7 @@ class CreatePet extends CreateRecord
     
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle photo file upload using simplified method
+        // Handle photo file upload if present
         $photoFile = $data['photo_file'] ?? null;
         unset($data['photo_file']);
         
@@ -22,7 +21,21 @@ class CreatePet extends CreateRecord
         
         // Handle photo upload after pet creation
         if ($photoFile) {
-            $record->handleFilamentUpload($photoFile, 'photo_path', 'photo_thumb_path');
+            try {
+                [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('photo_path');
+                $filePaths = $record->uploadFile(
+                    $photoFile,
+                    $directory,
+                    'photo_path',
+                    'photo_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+                
+                $record->update($filePaths);
+            } catch (\Exception $e) {
+                \Log::error("Photo upload failed: {$e->getMessage()}");
+            }
         }
         
         return $record;

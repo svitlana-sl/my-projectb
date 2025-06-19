@@ -100,6 +100,20 @@ trait HasFileUpload
     }
     
     /**
+     * Get file validation rules for Laravel validator
+     */
+    public function getFileValidationRules(): array
+    {
+        return [
+            'required',
+            'file',
+            'image',
+            'max:' . (config('image.validation.max_file_size') / 1024),
+            'mimes:' . implode(',', config('image.validation.allowed_extensions'))
+        ];
+    }
+    
+    /**
      * Validate uploaded file
      */
     protected function validateFile(UploadedFile $file): void
@@ -178,67 +192,9 @@ trait HasFileUpload
     }
     
     /**
-     * Handle Filament file upload (simplified method)
-     */
-    public function handleFilamentUpload(string $tempFilePath, string $fileField, string $thumbField = null): bool
-    {
-        try {
-            $disk = $this->getUploadDisk();
-            
-            if (!Storage::disk($disk)->exists($tempFilePath)) {
-                return false;
-            }
-            
-            $uploadedFile = $this->createUploadedFileFromTemp($tempFilePath, $disk);
-            if (!$uploadedFile) {
-                return false;
-            }
-            
-            [$directory, $thumbWidth, $thumbHeight] = $this->getUploadConfig($fileField);
-            
-            $filePaths = $this->uploadFile($uploadedFile, $directory, $fileField, $thumbField, $thumbWidth, $thumbHeight);
-            $this->update($filePaths);
-            
-            Storage::disk($disk)->delete($tempFilePath);
-            
-            return true;
-            
-        } catch (\Exception $e) {
-            \Log::error("File upload failed: {$e->getMessage()}");
-            return false;
-        }
-    }
-    
-    /**
-     * Create UploadedFile from temp storage
-     */
-    private function createUploadedFileFromTemp(string $tempFilePath, string $disk): ?UploadedFile
-    {
-        try {
-            $originalName = basename($tempFilePath);
-            $mimeType = Storage::disk($disk)->mimeType($tempFilePath);
-            
-            if ($disk === 'do_spaces') {
-                $fileContent = Storage::disk($disk)->get($tempFilePath);
-                $tempLocalPath = sys_get_temp_dir() . '/' . $originalName;
-                file_put_contents($tempLocalPath, $fileContent);
-                
-                return new UploadedFile($tempLocalPath, $originalName, $mimeType, null, true);
-            }
-            
-            $fullPath = Storage::disk($disk)->path($tempFilePath);
-            return new UploadedFile($fullPath, $originalName, $mimeType, null, true);
-            
-        } catch (\Exception $e) {
-            \Log::error("Failed to create UploadedFile: {$e->getMessage()}");
-            return null;
-        }
-    }
-    
-    /**
      * Get upload configuration based on field type
      */
-    private function getUploadConfig(string $fileField): array
+    public function getUploadConfig(string $fileField): array
     {
         switch ($fileField) {
             case 'avatar_path':

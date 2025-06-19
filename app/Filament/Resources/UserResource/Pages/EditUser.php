@@ -5,7 +5,6 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Storage;
 
 class EditUser extends EditRecord
 {
@@ -20,9 +19,28 @@ class EditUser extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file upload using simplified method
+        // Handle avatar file upload if present
         if (isset($data['avatar_file']) && $data['avatar_file']) {
-            $record->handleFilamentUpload($data['avatar_file'], 'avatar_path', 'avatar_thumb_path');
+            try {
+                // Delete old avatar files
+                $record->deleteOldAvatar();
+                
+                // Upload new avatar
+                [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('avatar_path');
+                $filePaths = $record->uploadFile(
+                    $data['avatar_file'],
+                    $directory,
+                    'avatar_path',
+                    'avatar_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+                
+                // Add file paths to data
+                $data = array_merge($data, $filePaths);
+            } catch (\Exception $e) {
+                \Log::error("Avatar upload failed: {$e->getMessage()}");
+            }
         }
         
         // Remove avatar_file from data as it's not a database field

@@ -311,20 +311,60 @@ class PetController extends BaseController
             return $this->sendError('Pet not found');
         }
 
-        $validator = Validator::make($request->all(), [
+        // Build validation rules array
+        $rules = [
             'owner_id' => 'sometimes|required|exists:users,id',
             'name' => 'sometimes|required|string|max:255',
             'breed' => 'sometimes|required|string|max:255',
             'age' => 'sometimes|required|integer|min:0|max:30',
             'weight' => 'sometimes|required|numeric|min:0.1|max:200',
             'photo_url' => 'nullable|url',
-        ]);
+        ];
+
+        // Add file validation if photo_file is present
+        if ($request->hasFile('photo_file')) {
+            $rules['photo_file'] = $pet->getFileValidationRules();
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->sendValidationError($validator->errors());
         }
 
-        $pet->update($request->all());
+        $input = $request->all();
+
+        // Handle file upload if present
+        if ($request->hasFile('photo_file')) {
+            try {
+                // Delete old photo files
+                $pet->deleteOldPhoto();
+
+                // Upload new photo using simplified method
+                $file = $request->file('photo_file');
+                [$directory, $thumbWidth, $thumbHeight] = $pet->getUploadConfig('photo_path');
+                
+                $filePaths = $pet->uploadFile(
+                    $file,
+                    $directory,
+                    'photo_path',
+                    'photo_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+
+                // Add file paths to input for update
+                $input = array_merge($input, $filePaths);
+                
+            } catch (\Exception $e) {
+                return $this->sendError('File upload failed: ' . $e->getMessage(), [], 500);
+            }
+        }
+
+        // Remove photo_file from input as it's not a database field
+        unset($input['photo_file']);
+
+        $pet->update($input);
         $pet->load('owner');
 
         return $this->sendResponse($pet, 'Pet updated successfully');
@@ -391,6 +431,8 @@ class PetController extends BaseController
 
         return $this->sendResponse([], 'Pet deleted successfully');
     }
+
+
 }
 
 /**

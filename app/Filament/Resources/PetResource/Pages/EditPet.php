@@ -5,7 +5,6 @@ namespace App\Filament\Resources\PetResource\Pages;
 use App\Filament\Resources\PetResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Storage;
 
 class EditPet extends EditRecord
 {
@@ -20,9 +19,28 @@ class EditPet extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle photo file upload using simplified method
+        // Handle photo file upload if present
         if (isset($data['photo_file']) && $data['photo_file']) {
-            $record->handleFilamentUpload($data['photo_file'], 'photo_path', 'photo_thumb_path');
+            try {
+                // Delete old photo files
+                $record->deleteOldPhoto();
+                
+                // Upload new photo
+                [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('photo_path');
+                $filePaths = $record->uploadFile(
+                    $data['photo_file'],
+                    $directory,
+                    'photo_path',
+                    'photo_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+                
+                // Add file paths to data
+                $data = array_merge($data, $filePaths);
+            } catch (\Exception $e) {
+                \Log::error("Photo upload failed: {$e->getMessage()}");
+            }
         }
         
         // Remove photo_file from data as it's not a database field

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Storage;
 
 class CreateUser extends CreateRecord
 {
@@ -13,7 +12,7 @@ class CreateUser extends CreateRecord
     
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file upload using simplified method
+        // Handle avatar file upload if present
         $avatarFile = $data['avatar_file'] ?? null;
         unset($data['avatar_file']);
         
@@ -22,7 +21,21 @@ class CreateUser extends CreateRecord
         
         // Handle avatar upload after user creation
         if ($avatarFile) {
-            $record->handleFilamentUpload($avatarFile, 'avatar_path', 'avatar_thumb_path');
+            try {
+                [$directory, $thumbWidth, $thumbHeight] = $record->getUploadConfig('avatar_path');
+                $filePaths = $record->uploadFile(
+                    $avatarFile,
+                    $directory,
+                    'avatar_path',
+                    'avatar_thumb_path',
+                    $thumbWidth,
+                    $thumbHeight
+                );
+                
+                $record->update($filePaths);
+            } catch (\Exception $e) {
+                \Log::error("Avatar upload failed: {$e->getMessage()}");
+            }
         }
         
         return $record;
