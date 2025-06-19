@@ -21,11 +21,12 @@ class EditUser extends EditRecord
     
     protected function handleRecordUpdate($record, array $data): \Illuminate\Database\Eloquent\Model
     {
-        // Handle avatar file upload if present and different from current
+        // Handle avatar file upload if present and different from existing
         if (isset($data['avatar_file']) && $data['avatar_file']) {
-            if ($this->isNewFileUpload($data['avatar_file'], $record->avatar_path)) {
+            // Check if this is a new upload (not the same as current avatar_path)
+            if ($data['avatar_file'] !== $record->avatar_path) {
                 try {
-                    // Delete old avatar files
+                    // Delete old avatar files only if uploading new one
                     $record->deleteOldAvatar();
                     
                     // Convert Filament temp path to UploadedFile
@@ -59,14 +60,6 @@ class EditUser extends EditRecord
         $record->update($data);
         
         return $record;
-    }
-    
-    /**
-     * Check if the uploaded file is new (not existing path)
-     */
-    private function isNewFileUpload(string $uploadedFile, ?string $existingPath): bool
-    {
-        return !str_starts_with($uploadedFile, $existingPath ?? '');
     }
     
     /**

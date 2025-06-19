@@ -68,19 +68,6 @@ class UserResource extends Resource
                     ->maxSize(config('image.validation.max_file_size') / 1024)
                     ->acceptedFileTypes(config('image.validation.allowed_mime_types'))
                     ->visibility('public')
-                    ->dehydrated(true)
-                    ->getStateUsing(function ($record) {
-                        // Show existing avatar if editing
-                        if ($record && $record->avatar_path) {
-                            return $record->avatar_path;
-                        }
-                        return null;
-                    })
-                    ->deleteUploadedFileUsing(function ($file) {
-                        // Don't delete the file when removing from form
-                        // File cleanup is handled in the model
-                        return true;
-                    })
                     ->helperText('Максимальний розмір: ' . config('image.validation.max_file_size') / 1024 / 1024 . 'MB. Підтримувані формати: ' . implode(', ', config('image.validation.allowed_extensions'))),
                     
                 Forms\Components\TextInput::make('avatar_url')
@@ -116,7 +103,14 @@ class UserResource extends Resource
                             ->numeric()
                             ->step(0.0000001),
                     ]),
-            ]);
+            ])
+            ->mutateFormDataUsing(function (array $data): array {
+                // Show existing avatar in FileUpload when editing
+                if (isset($data['avatar_path']) && $data['avatar_path'] && !isset($data['avatar_file'])) {
+                    $data['avatar_file'] = $data['avatar_path'];
+                }
+                return $data;
+            });
     }
 
     public static function table(Table $table): Table
